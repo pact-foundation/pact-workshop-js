@@ -166,7 +166,7 @@ describe("API", () => {
 Let's run this test and see it all pass:
 
 ```console
-❯ npm run test:pact --prefix consumer
+❯ npm test --prefix consumer
 
 PASS src/api.spec.js
   API
