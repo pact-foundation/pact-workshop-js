@@ -618,7 +618,7 @@ Copy the updated contract located in `consumer/pacts/frontendwebsite-productserv
 Run the command:
 
 ```console
-❯ npm test --prefix provider         
+❯ npm run test:pact --prefix provider         
 
 [2020-01-14T10:58:34.157Z]  INFO: pact@9.5.0/3498: Verifying provider
 [2020-01-14T10:58:34.161Z]  INFO: pact-node@10.2.2/3498: Verifying Pacts.
@@ -732,7 +732,7 @@ Ran all test suites matching /pact.spec.js/i.
 What does our provider have to say about this new test. Again, copy the updated pact file into the provider's test resource directory and run the command:
 
 ```console
-❯ npm test --prefix provider
+❯ npm run test:pact --prefix provider
 
 [2020-01-14T11:11:51.390Z]  INFO: pact@9.5.0/3894: Verifying provider
 [2020-01-14T11:11:51.394Z]  INFO: pact-node@10.2.2/3894: Verifying Pacts.
@@ -928,7 +928,7 @@ stateHandlers: {
 Let's see how we go now:
 
 ```console
-❯ npm test --prefix provider
+❯ npm run test:pact --prefix provider
 
 [2020-01-14T11:25:30.775Z]  INFO: pact@9.5.0/4386: Verifying provider
 [2020-01-14T11:25:30.779Z]  INFO: pact-node@10.2.2/4386: Verifying Pacts.
@@ -1218,7 +1218,7 @@ We should now have two new interactions in our pact file.
 Let's test the provider. Copy the updated pact file into the provider's test resource directory and run the command:
 
 ```console
-❯ npm test --prefix provider
+❯ npm run test:pact --prefix provider
 
 [2020-01-14T11:42:56.479Z]  INFO: pact@9.5.0/5247: Verifying provider
 [2020-01-14T11:42:56.483Z]  INFO: pact-node@10.2.2/5247: Verifying Pacts.
@@ -1394,7 +1394,7 @@ Authorization: Bearer 2006-01-02T15:04
 Let's test this out:
 
 ```console
-❯ npm test --prefix provider
+❯ npm run test:pact --prefix provider
 
 [2020-01-14T11:49:31.048Z]  INFO: pact@9.5.0/5759: Verifying provider
 [2020-01-14T11:49:31.051Z]  INFO: pact-node@10.2.2/5759: Verifying Pacts.
@@ -1657,7 +1657,7 @@ requestFilter: (req, res, next) => {
 We can now run the Provider tests
 
 ```console
-❯ npm test --prefix provider
+❯ npm run test:pact --prefix provider
 
 [2020-01-14T11:58:57.933Z]  INFO: pact@9.5.0/6636: Verifying provider
 [2020-01-14T11:58:57.937Z]  INFO: pact-node@10.2.2/6636: Verifying Pacts.
@@ -1825,7 +1825,7 @@ return new Verifier(opts).verifyProvider().finally(() => {
 Let's run the provider verification one last time after this change:
 
 ```console
-❯ PACT_PUBLISH_RESULTS=true npm test --prefix provider
+❯ PACT_PUBLISH_RESULTS=true npm run test:pact --prefix provider
 
 [2020-01-14T12:34:08.157Z]  INFO: pact@9.5.0/10742: Verifying provider
 [2020-01-14T12:34:08.161Z]  INFO: pact-node@10.2.2/10742: Verifying Pacts.
