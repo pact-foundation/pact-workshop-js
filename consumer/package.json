@@ -16,7 +16,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "CI=true react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test:pact": "CI=true react-scripts test pact.spec.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -34,6 +35,7 @@
     ]
   },
   "devDependencies": {
+    "@pact-foundation/pact": "^9.6.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
