@@ -5,13 +5,15 @@
   "main": "app.js",
   "scripts": {
     "start": "node server.js",
-    "test": "npx jest"
+    "test": "npx jest",
+    "test:pact": "npx jest --testMatch \"**/*.pact.test.js\""
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1"
   },
   "devDependencies": {
+    "@pact-foundation/pact": "^9.6.0",
     "@types/jest": "^24.0.23",
     "jest": "^24.9.0"
   },
