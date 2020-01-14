@@ -71,7 +71,7 @@ describe("API Pact test", () => {
                 uponReceiving: 'get product with ID 10',
                 withRequest: {
                     method: 'GET',
-                    path: '/products/10'
+                    path: '/product/10'
                 },
                 willRespondWith: {
                     status: 200,
