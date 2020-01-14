@@ -35,7 +35,10 @@ describe("API Pact test", () => {
                 uponReceiving: 'get all products',
                 withRequest: {
                     method: 'GET',
-                    path: '/products'
+                    path: '/products',
+                    headers: {
+                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                    }
                 },
                 willRespondWith: {
                     status: 200,
@@ -69,7 +72,10 @@ describe("API Pact test", () => {
                 uponReceiving: 'get all products',
                 withRequest: {
                     method: 'GET',
-                    path: '/products'
+                    path: '/products',
+                    headers: {
+                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                    }
                 },
                 willRespondWith: {
                     status: 200,
@@ -87,6 +93,27 @@ describe("API Pact test", () => {
 
             expect(product).toStrictEqual([]);
         });
+
+        test("no auth token", async () => {
+
+            // set up Pact interactions
+            await provider.addInteraction({
+                state: 'products exist',
+                uponReceiving: 'get all products with no auth token',
+                withRequest: {
+                    method: 'GET',
+                    path: '/products'
+                },
+                willRespondWith: {
+                    status: 401
+                },
+            });
+
+            let api = new API(provider.mockService.baseUrl);
+
+            // make request to Pact mock server
+            await expect(api.getAllProducts()).rejects.toThrow("Request failed with status code 401");
+        });
     });
 
     describe("getting one product", () => {
@@ -98,7 +125,10 @@ describe("API Pact test", () => {
                 uponReceiving: 'get product with ID 10',
                 withRequest: {
                     method: 'GET',
-                    path: '/product/10'
+                    path: '/product/10',
+                    headers: {
+                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                    }
                 },
                 willRespondWith: {
                     status: 200,
@@ -133,7 +163,10 @@ describe("API Pact test", () => {
                 uponReceiving: 'get product with ID 11',
                 withRequest: {
                     method: 'GET',
-                    path: '/product/11'
+                    path: '/product/11',
+                    headers: {
+                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                    }
                 },
                 willRespondWith: {
                     status: 404
@@ -144,6 +177,27 @@ describe("API Pact test", () => {
 
             // make request to Pact mock server
             await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
+        });
+
+        test("no auth token", async () => {
+
+            // set up Pact interactions
+            await provider.addInteraction({
+                state: 'product with ID 10 exists',
+                uponReceiving: 'get product by ID 10 with no auth token',
+                withRequest: {
+                    method: 'GET',
+                    path: '/product/10'
+                },
+                willRespondWith: {
+                    status: 401
+                },
+            });
+
+            let api = new API(provider.mockService.baseUrl);
+
+            // make request to Pact mock server
+            await expect(api.getProduct("10")).rejects.toThrow("Request failed with status code 401");
         });
     });
 });
