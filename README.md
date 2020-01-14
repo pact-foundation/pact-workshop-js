@@ -1385,6 +1385,15 @@ const authMiddleware = require('./middleware/auth.middleware');
 app.use(authMiddleware);
 ```
 
+We also need to add the middleware to the server our Pact tests use.
+ 
+In `provider/product/product.pact.test.js`:
+
+```javascript
+const authMiddleware = require('../middleware/auth.middleware');
+app.use(authMiddleware);
+```
+
 This means that a client must present an HTTP `Authorization` header that looks as follows:
 
 ```
