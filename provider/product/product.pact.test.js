@@ -17,9 +17,9 @@ describe("Pact Verification", () => {
             providerBaseUrl: "http://localhost:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
-            pactUrls: [
-                path.resolve(__dirname, '../pacts/frontendwebsite-productservice.json')
-            ],
+            pactBrokerUrl: process.env.PACT_BROKER_URL || "http://localhost:8081",
+            pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
+            pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
             stateHandlers: {
                 "product with ID 10 exists": () => {
                     controller.repository.products = new Map([
@@ -48,6 +48,12 @@ describe("Pact Verification", () => {
                 next();
             },
         };
+
+        if (process.env.CI || process.env.PACT_PUBLISH_RESULTS) {
+            Object.assign(opts, {
+                publishVerificationResult: true,
+            });
+        }
 
         return new Verifier(opts).verifyProvider().finally(() => {
             server.close();
