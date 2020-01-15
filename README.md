@@ -729,7 +729,7 @@ Ran all test suites matching /pact.spec.js/i.
 
 ```
 
-What does our provider have to say about this new test. Again, copy the updated pact file into the provider's test resource directory and run the command:
+What does our provider have to say about this new test. Again, copy the updated pact file into the provider's pact directory and run the command:
 
 ```console
 ❯ npm run test:pact --prefix provider
@@ -1215,7 +1215,7 @@ Ran all test suites matching /pact.spec.js/i.
 
 We should now have two new interactions in our pact file.
 
-Let's test the provider. Copy the updated pact file into the provider's test resource directory and run the command:
+Let's test the provider. Copy the updated pact file into the provider's pact directory and run the command:
 
 ```console
 ❯ npm run test:pact --prefix provider
