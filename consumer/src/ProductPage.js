@@ -30,7 +30,7 @@ class ProductPage extends React.Component {
             this.props.history.push({
                 pathname: "/error",
                 state: {
-                    error: e
+                    error: e.toString()
                 }
             });
         });
