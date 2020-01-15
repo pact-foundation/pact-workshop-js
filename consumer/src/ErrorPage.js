@@ -19,7 +19,7 @@ class ErrorPage extends React.Component {
                         wordWrap: "break-word"
                     }}>
                         <code>
-                            {this.props.location.state && this.props.location.state.error ? this.props.location.state.error.stack : ""}
+                            {this.props.location.state && this.props.location.state.error ? this.props.location.state.error : ""}
                         </code>
                     </pre>
                 </div>
