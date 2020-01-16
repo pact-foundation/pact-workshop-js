@@ -1,7 +1,7 @@
 import path from "path";
 import {Pact} from "@pact-foundation/pact";
-import * as Matchers from "@pact-foundation/pact/dsl/matchers";
 import {API} from "./api";
+import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
 
 const provider = new Pact({
     consumer: 'FrontendWebsite',
@@ -42,10 +42,10 @@ describe("API Pact test", () => {
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8'
                     },
-                    body: Matchers.eachLike({
-                        id: Matchers.like("09"),
-                        type: Matchers.like("CREDIT_CARD"),
-                        name: Matchers.like("Gem Visa")
+                    body: eachLike({
+                        id: "09",
+                        type: "CREDIT_CARD",
+                        name: "Gem Visa"
                     }, {min: 2}),
                 },
             });
@@ -78,11 +78,11 @@ describe("API Pact test", () => {
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8'
                     },
-                    body: {
-                        id: Matchers.like("10"),
-                        type: Matchers.like("CREDIT_CARD"),
-                        name: Matchers.like("28 Degrees")
-                    },
+                    body: like({
+                        id: "10",
+                        type: "CREDIT_CARD",
+                        name: "28 Degrees"
+                    }),
                 },
             });
 
