@@ -37,7 +37,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/products',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -73,7 +73,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/products',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -126,7 +126,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/product/10',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -164,7 +164,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/product/11',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
