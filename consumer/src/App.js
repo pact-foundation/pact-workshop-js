@@ -7,6 +7,15 @@ import Heading from "./Heading";
 import Layout from "./Layout";
 import {withRouter} from "react-router";
 import API from "./api";
+import PropTypes from 'prop-types';
+
+const productPropTypes = {
+    product: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        type: PropTypes.string.isRequired,
+    }).isRequired
+};
 
 function ProductTableRow(props) {
     return (
@@ -24,9 +33,10 @@ function ProductTableRow(props) {
         </tr>
     );
 }
+ProductTableRow.propTypes = productPropTypes;
 
 function ProductTable(props) {
-    let products = props.products.map(p => (
+    const products = props.products.map(p => (
         <ProductTableRow key={p.id} product={p}/>
     ));
     return (
@@ -44,6 +54,10 @@ function ProductTable(props) {
         </table>
     );
 }
+
+ProductTable.propTypes = {
+    products: PropTypes.arrayOf(productPropTypes.product)
+};
 
 class App extends React.Component {
     constructor(props) {
@@ -78,7 +92,7 @@ class App extends React.Component {
     }
 
     determineVisibleProducts() {
-        let findProducts = (search) => {
+        const findProducts = (search) => {
             search = search.toLowerCase();
             return this.state.products.filter(p =>
                 p.id.toLowerCase().includes(search)
@@ -118,5 +132,12 @@ class App extends React.Component {
         );
     }
 }
+
+App.propTypes = {
+    history: PropTypes.shape({
+            push: PropTypes.func.isRequired
+        }
+    ).isRequired
+};
 
 export default withRouter(App);

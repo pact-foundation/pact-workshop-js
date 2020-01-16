@@ -5,6 +5,7 @@ import 'spectre.css/dist/spectre-exp.min.css';
 import Layout from "./Layout";
 import Heading from "./Heading";
 import {withRouter} from "react-router";
+import PropTypes from 'prop-types';
 
 class ErrorPage extends React.Component {
     render() {
@@ -27,5 +28,13 @@ class ErrorPage extends React.Component {
         );
     }
 }
+
+ErrorPage.propTypes = {
+    location: PropTypes.shape({
+        state: PropTypes.shape({
+            error: PropTypes.string.isRequired
+        }).isRequired
+    }).isRequired
+};
 
 export default withRouter(ErrorPage);
