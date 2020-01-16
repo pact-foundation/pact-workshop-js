@@ -12,7 +12,7 @@ const server = app.listen("8080");
 
 describe("Pact Verification", () => {
     it("validates the expectations of ProductService", () => {
-        let opts = {
+        const opts = {
             logLevel: "INFO",
             providerBaseUrl: "http://localhost:8080",
             provider: "ProductService",

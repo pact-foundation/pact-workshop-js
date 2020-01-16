@@ -1,7 +1,7 @@
 import path from "path";
 import {Pact} from "@pact-foundation/pact";
-import * as Matchers from "@pact-foundation/pact/dsl/matchers";
 import {API} from "./api";
+import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
 
 const provider = new Pact({
     consumer: 'FrontendWebsite',
@@ -37,7 +37,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/products',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -45,21 +45,20 @@ describe("API Pact test", () => {
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8'
                     },
-                    body: Matchers.eachLike({
-                        id: Matchers.like("09"),
-                        type: Matchers.like("CREDIT_CARD"),
-                        name: Matchers.like("Gem Visa")
-                    }, {min: 2}),
+                    body: eachLike({
+                        id: "09",
+                        type: "CREDIT_CARD",
+                        name: "Gem Visa"
+                    }),
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getAllProducts();
+            const product = await api.getAllProducts();
 
             expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"},
                 {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
             ]);
         });
@@ -74,7 +73,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/products',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -86,10 +85,10 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getAllProducts();
+            const product = await api.getAllProducts();
 
             expect(product).toStrictEqual([]);
         });
@@ -127,7 +126,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/product/10',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -135,18 +134,18 @@ describe("API Pact test", () => {
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8'
                     },
-                    body: {
-                        id: Matchers.like("10"),
-                        type: Matchers.like("CREDIT_CARD"),
-                        name: Matchers.like("28 Degrees")
-                    },
+                    body: like({
+                        id: "10",
+                        type: "CREDIT_CARD",
+                        name: "28 Degrees"
+                    }),
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getProduct("10");
+            const product = await api.getProduct("10");
 
             expect(product).toStrictEqual({
                 id: "10",
@@ -165,7 +164,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/product/11',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -173,7 +172,7 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
             await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 function Heading(props) {
     return (
@@ -11,5 +12,10 @@ function Heading(props) {
         </div>
     );
 }
+
+Heading.propTypes = {
+    href: PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired
+};
 
 export default Heading;
