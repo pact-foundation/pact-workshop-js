@@ -1,0 +1,13 @@
+{
+  "name": "pact-workshop-js",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "concurrently \"npm install --prefix consumer\" \"npm install --prefix provider\"",
+    "start": "concurrently \"npm start --prefix consumer\" \"npm start --prefix provider\"",
+    "lint": "concurrently \"cd consumer/ && npx eslint .\" \"cd provider/ && npx eslint .\""
+  },
+  "dependencies": {
+    "concurrently": "^5.0.2"
+  }
+}
