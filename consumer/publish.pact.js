@@ -5,9 +5,9 @@ if (!process.env.CI && !process.env.PUBLISH_PACT) {
     process.exit(0)
 }
 
-let pactBrokerUrl = process.env.PACT_BROKER_URL || 'http://localhost:8081';
-let pactBrokerUsername = process.env.PACT_BROKER_USERNAME || 'pact_workshop';
-let pactBrokerPassword = process.env.PACT_BROKER_PASSWORD || 'pact_workshop';
+const pactBrokerUrl = process.env.PACT_BROKER_URL || 'http://localhost:8081';
+const pactBrokerUsername = process.env.PACT_BROKER_USERNAME || 'pact_workshop';
+const pactBrokerPassword = process.env.PACT_BROKER_PASSWORD || 'pact_workshop';
 
 const gitHash = require('child_process')
     .execSync('git rev-parse --short HEAD')
