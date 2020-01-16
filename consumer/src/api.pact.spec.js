@@ -79,10 +79,10 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getAllProducts();
+            const product = await api.getAllProducts();
 
             expect(product).toStrictEqual([]);
         });
@@ -139,7 +139,7 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
             await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
