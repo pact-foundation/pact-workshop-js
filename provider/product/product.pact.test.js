@@ -1,5 +1,4 @@
 const { Verifier } = require('@pact-foundation/pact');
-const path = require('path');
 const controller = require('./product.controller');
 const Product = require('./product');
 

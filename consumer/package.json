@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@pact-foundation/pact": "^9.6.0",
+    "@pact-foundation/pact-node": "^10.2.4",
     "@testing-library/jest-dom": "^4.2.4",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",

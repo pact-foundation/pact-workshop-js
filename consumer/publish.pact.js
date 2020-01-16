@@ -1,5 +1,4 @@
 const pact = require('@pact-foundation/pact-node');
-const path = require('path');
 
 if (!process.env.CI && !process.env.PUBLISH_PACT) {
     console.log("skipping Pact publish...");
