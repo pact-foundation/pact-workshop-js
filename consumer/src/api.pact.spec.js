@@ -50,10 +50,10 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getAllProducts();
+            const product = await api.getAllProducts();
 
             expect(product).toStrictEqual([
                 {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"},
@@ -86,10 +86,10 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getProduct("10");
+            const product = await api.getProduct("10");
 
             expect(product).toStrictEqual({
                 id: "10",
