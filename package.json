@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "concurrently \"npm install --prefix consumer\" \"npm install --prefix provider\"",
-    "start": "concurrently \"npm start --prefix consumer\" \"npm start --prefix provider\""
+    "postinstall": "npm install --prefix consumer",
+    "start": "npm start --prefix consumer"
   },
   "dependencies": {
     "concurrently": "^5.0.2"
