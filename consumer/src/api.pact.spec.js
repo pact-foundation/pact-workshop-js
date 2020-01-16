@@ -108,7 +108,7 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
             await expect(api.getAllProducts()).rejects.toThrow("Request failed with status code 401");
@@ -193,7 +193,7 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
             await expect(api.getProduct("10")).rejects.toThrow("Request failed with status code 401");
