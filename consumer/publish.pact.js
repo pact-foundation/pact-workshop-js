@@ -3,7 +3,7 @@ const path = require('path');
 
 if (!process.env.CI && !process.env.PUBLISH_PACT) {
     console.log("skipping Pact publish...");
-    return
+    process.exit(0)
 }
 
 let pactBrokerUrl = process.env.PACT_BROKER_URL || 'http://localhost:8081';
@@ -15,7 +15,7 @@ const gitHash = require('child_process')
     .toString().trim();
 
 const opts = {
-    pactFilesOrDirs: [path.resolve(__dirname, './pacts/')],
+    pactFilesOrDirs: ['./pacts/'],
     pactBroker: pactBrokerUrl,
     pactBrokerUsername: pactBrokerUsername,
     pactBrokerPassword: pactBrokerPassword,
