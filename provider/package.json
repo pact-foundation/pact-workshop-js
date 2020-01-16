@@ -12,7 +12,6 @@
     "express": "^4.17.1"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.23",
     "jest": "^24.9.0"
   },
   "license": "ISC"
