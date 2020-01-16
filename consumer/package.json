@@ -16,7 +16,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "CI=true react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test:pact": "CI=true react-scripts test pact.spec.js",
+    "posttest:pact": "node publish.pact.js"
   },
   "eslintConfig": {
     "extends": "react-app"
