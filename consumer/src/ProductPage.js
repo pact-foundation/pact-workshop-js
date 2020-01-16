@@ -6,6 +6,7 @@ import Layout from "./Layout";
 import Heading from "./Heading";
 import {withRouter} from "react-router";
 import API from "./api";
+import PropTypes from 'prop-types';
 
 class ProductPage extends React.Component {
     constructor(props) {
@@ -58,5 +59,12 @@ class ProductPage extends React.Component {
         );
     }
 }
+
+ProductPage.propTypes = {
+    match: PropTypes.array.isRequired,
+    history: PropTypes.shape({
+        push: PropTypes.func.isRequired
+    }).isRequired
+};
 
 export default withRouter(ProductPage);
