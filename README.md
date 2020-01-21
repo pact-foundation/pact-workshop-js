@@ -10,17 +10,17 @@ This workshop should take from 1 to 2 hours, depending on how deep you want to g
 
 **Workshop outline**:
 
-- [step 1: **create consumer**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step1#step-1---simple-consumer-calling-provider): Create our consumer before the Provider API even exists
-- [step 2: **unit test**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step2#step-2---client-tested-but-integration-fails): Write a unit test for our consumer
-- [step 3: **pact test**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step3#step-3---pact-to-the-rescue): Write a Pact test for our consumer
-- [step 4: **pact verification**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step4#step-4---verify-the-provider): Verify the consumer pact with the Provider API
-- [step 5: **fix consumer**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step5#step-5---back-to-the-client-we-go): Fix the consumer's bad assumptions about the Provider
-- [step 6: **pact test**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step6#step-6---consumer-updates-contract-for-missing-products): Write a pact test for `404` (missing User) in consumer
-- [step 7: **provider states**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step7#step-7---adding-the-missing-states): Update API to handle `404` case
-- [step 8: **pact test**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step8#step-8---authorization): Write a pact test for the `401` case
-- [step 9: **pact test**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step9#step-9---implement-authorisation-on-the-provider): Update API to handle `401` case
-- [step 10: **request filters**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step10#step-10---request-filters-on-the-provider): Fix the provider to support the `401` case
-- [step 11: **pact broker**](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step11#step-11---using-a-pact-broker): Implement a broker workflow for integration with CI/CD
+- [step 1: **create consumer**](https://github.com/pact-foundation/pact-workshop-js/tree/step1#step-1---simple-consumer-calling-provider): Create our consumer before the Provider API even exists
+- [step 2: **unit test**](https://github.com/pact-foundation/pact-workshop-js/tree/step2#step-2---client-tested-but-integration-fails): Write a unit test for our consumer
+- [step 3: **pact test**](https://github.com/pact-foundation/pact-workshop-js/tree/step3#step-3---pact-to-the-rescue): Write a Pact test for our consumer
+- [step 4: **pact verification**](https://github.com/pact-foundation/pact-workshop-js/tree/step4#step-4---verify-the-provider): Verify the consumer pact with the Provider API
+- [step 5: **fix consumer**](https://github.com/pact-foundation/pact-workshop-js/tree/step5#step-5---back-to-the-client-we-go): Fix the consumer's bad assumptions about the Provider
+- [step 6: **pact test**](https://github.com/pact-foundation/pact-workshop-js/tree/step6#step-6---consumer-updates-contract-for-missing-products): Write a pact test for `404` (missing User) in consumer
+- [step 7: **provider states**](https://github.com/pact-foundation/pact-workshop-js/tree/step7#step-7---adding-the-missing-states): Update API to handle `404` case
+- [step 8: **pact test**](https://github.com/pact-foundation/pact-workshop-js/tree/step8#step-8---authorization): Write a pact test for the `401` case
+- [step 9: **pact test**](https://github.com/pact-foundation/pact-workshop-js/tree/step9#step-9---implement-authorisation-on-the-provider): Update API to handle `401` case
+- [step 10: **request filters**](https://github.com/pact-foundation/pact-workshop-js/tree/step10#step-10---request-filters-on-the-provider): Fix the provider to support the `401` case
+- [step 11: **pact broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker): Implement a broker workflow for integration with CI/CD
 
 _NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally. For example, to move to step 2 run the following: `git checkout step2`_
 
@@ -100,7 +100,7 @@ Error: Network Error
     at XMLHttpRequest.handleError (http://localhost:3000/static/js/0.chunk.js:458:14)
 ```
 
-*Move on to [step 2](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step2#step-2---client-tested-but-integration-fails)*
+*Move on to [step 2](https://github.com/pact-foundation/pact-workshop-js/tree/step2#step-2---client-tested-but-integration-fails)*
 
 ## Step 2 - Client Tested but integration fails
 
@@ -215,7 +215,7 @@ Doh! We are getting 404 everytime we try to view detailed product information. O
 
 We need to have a conversation about what the endpoint should be, but first...
 
-*Move on to [step 3](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step3#step-3---pact-to-the-rescue)*
+*Move on to [step 3](https://github.com/pact-foundation/pact-workshop-js/tree/step3#step-3---pact-to-the-rescue)*
 
 ## Step 3 - Pact to the rescue
 
@@ -225,14 +225,14 @@ Unit tests are written and executed in isolation of any other services. When we 
 
 Adding contract tests via Pact would have highlighted the `/product/{id}` endpoint was incorrect.
 
-Let us add Pact to the project and write a consumer pact test for the `GET /products/{id}` endpoint. 
+Let us add Pact to the project and write a consumer pact test for the `GET /products/{id}` endpoint.
 
 *Provider states* is an important concept of Pact that we need to introduce. These states help define the state that the provider should be in for specific interactions. For the moment, we will initially be testing the following states:
 
 - `product with ID 10 exists`
 - `products exist`
 
-The consumer can define the state of an interaction using the `given` property. 
+The consumer can define the state of an interaction using the `given` property.
 
 Note how similar it looks to our unit test:
 
@@ -373,7 +373,7 @@ A pact file should have been generated in *consumer/pacts/frontendwebsite-produc
 
 *NOTE*: even if the API client had been been graciously provided for us by our Provider Team, it doesn't mean that we shouldn't write contract tests - because the version of the client we have may not always be in sync with the deployed API - and also because we will write tests on the output appropriate to our specific needs.
 
-*Move on to [step 4](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step4#step-4---verify-the-provider)*
+*Move on to [step 4](https://github.com/pact-foundation/pact-workshop-js/tree/step4#step-4---verify-the-provider)*
 
 ## Step 4 - Verify the provider
 
@@ -499,8 +499,8 @@ We now need to validate the pact generated by the consumer is valid, by executin
 
            Diff
            --------------------------------------
-           Key: - is expected 
-                + is actual 
+           Key: - is expected
+                + is actual
            Matching keys and values are not shown
 
            -{
@@ -518,7 +518,7 @@ We now need to validate the pact generated by the consumer is valid, by executin
            +<pre>Cannot GET /products/10</pre>
            +</body>
            +</html>
-           
+
 
            Description of differences
            --------------------------------------
@@ -551,7 +551,7 @@ The test has failed, as the expected path `/products/{id}` is returning 404. We 
 
 The correct endpoint which the consumer should call is `/product/{id}`.
 
-Move on to [step 5](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step5#step-5---back-to-the-client-we-go)
+Move on to [step 5](https://github.com/pact-foundation/pact-workshop-js/tree/step5#step-5---back-to-the-client-we-go)
 
 ## Step 5 - Back to the client we go
 
@@ -584,7 +584,7 @@ describe("getting one product", () => {
         method: 'GET',
         path: '/product/10'
       },
-              
+
 ...
 ```
 
@@ -618,7 +618,7 @@ Copy the updated contract located in `consumer/pacts/frontendwebsite-productserv
 Run the command:
 
 ```console
-❯ npm run test:pact --prefix provider         
+❯ npm run test:pact --prefix provider
 
 [2020-01-14T10:58:34.157Z]  INFO: pact@9.5.0/3498: Verifying provider
 [2020-01-14T10:58:34.161Z]  INFO: pact-node@10.2.2/3498: Verifying Pacts.
@@ -641,7 +641,7 @@ Ran all test suites.
 
 Yay - green ✅!
 
-Move on to [step 6](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step6#step-6---consumer-updates-contract-for-missing-products)
+Move on to [step 6](https://github.com/pact-foundation/pact-workshop-js/tree/step6#step-6---consumer-updates-contract-for-missing-products)
 
 ## Step 6 - Consumer updates contract for missing products
 
@@ -818,8 +818,8 @@ What does our provider have to say about this new test. Again, copy the updated 
 
            Diff
            --------------------------------------
-           Key: - is expected 
-                + is actual 
+           Key: - is expected
+                + is actual
            Matching keys and values are not shown
 
            -[,
@@ -883,7 +883,7 @@ We expected this failure, because the product we are requesing does in fact exis
 
 We could resolve this by updating our consumer test to use a known non-existent product, but it's worth understanding how Provider states work more generally.
 
-*Move on to [step 7](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step7#step-7---adding-the-missing-states)*
+*Move on to [step 7](https://github.com/pact-foundation/pact-workshop-js/tree/step7#step-7---adding-the-missing-states)*
 
 ## Step 7 - Adding the missing states
 
@@ -947,7 +947,7 @@ Ran all test suites.
 
 _NOTE_: The states are not necessarily a 1 to 1 mapping with the consumer contract tests. You can reuse states amongst different tests. In this scenario we could have used `no products exist` for both tests which would have equally been valid.
 
-*Move on to [step 8](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step8#step-8---authorization)*
+*Move on to [step 8](https://github.com/pact-foundation/pact-workshop-js/tree/step8#step-8---authorization)*
 
 ## Step 8 - Authorization
 
@@ -1347,7 +1347,7 @@ npm ERR! Test failed.  See above for more details.
 
 Now with the most recently added interactions where we are expecting a response of 401 when no authorization header is sent, we are getting 200...
 
-Move on to [step 9](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step9#step-9---implement-authorisation-on-the-provider)*
+Move on to [step 9](https://github.com/pact-foundation/pact-workshop-js/tree/step9#step-9---implement-authorisation-on-the-provider)*
 
 ## Step 9 - Implement authorisation on the provider
 
@@ -1386,7 +1386,7 @@ app.use(authMiddleware);
 ```
 
 We also need to add the middleware to the server our Pact tests use.
- 
+
 In `provider/product/product.pact.test.js`:
 
 ```javascript
@@ -1514,8 +1514,8 @@ Let's test this out:
 
            Diff
            --------------------------------------
-           Key: - is expected 
-                + is actual 
+           Key: - is expected
+                + is actual
            Matching keys and values are not shown
 
            -[
@@ -1533,7 +1533,7 @@ Let's test this out:
            +{
            +  "error": "Unauthorized"
            +}
-           
+
 
            Description of differences
            --------------------------------------
@@ -1554,8 +1554,8 @@ Let's test this out:
 
            Diff
            --------------------------------------
-           Key: - is expected 
-                + is actual 
+           Key: - is expected
+                + is actual
            Matching keys and values are not shown
 
            -[,
@@ -1564,7 +1564,7 @@ Let's test this out:
            +{
            +  "error": "Unauthorized"
            +}
-           
+
 
            Description of differences
            --------------------------------------
@@ -1585,8 +1585,8 @@ Let's test this out:
 
            Diff
            --------------------------------------
-           Key: - is expected 
-                + is actual 
+           Key: - is expected
+                + is actual
            Matching keys and values are not shown
 
             {
@@ -1634,7 +1634,7 @@ npm ERR! Test failed.  See above for more details.
 
 Oh, dear. _More_ tests are failing. Can you understand why?
 
-*Move on to [step 10](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step10#step-10---request-filters-on-the-provider)*
+*Move on to [step 10](https://github.com/pact-foundation/pact-workshop-js/tree/step10#step-10---request-filters-on-the-provider)*
 
 ## Step 10 - Request Filters on the Provider
 
@@ -1683,7 +1683,7 @@ Ran all test suites.
 [2020-01-14T11:58:58.557Z]  INFO: pact-node@10.2.2/6636: Pact Verification succeeded.
 ```
 
-*Move on to [step 11](https://github.latitudefinancial.com/Latitude/pact-workshop-js/tree/step11#step-11---using-a-pact-broker)*
+*Move on to [step 11](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker)*
 
 ## Step 11 - Using a Pact Broker
 
@@ -1757,7 +1757,7 @@ Now add this to `consumer/package.json`:
 "posttest:pact": "node publish.pact.js",
 ```
 
-Now run 
+Now run
 
 ```console
 ❯ CI=true npm run test:pact --prefix consumer
@@ -1781,16 +1781,16 @@ Ran all test suites matching /pact.spec.js/i.
 
 [2020-01-14T12:27:49.592Z]  INFO: pact-node@10.2.4/10405: Publishing Pacts to Broker
 [2020-01-14T12:27:49.593Z]  INFO: pact-node@10.2.4/10405: Publishing pacts to broker at: http://localhost:8081
-[2020-01-14T12:27:50.164Z]  INFO: pact-node@10.2.4/10405: 
-    
+[2020-01-14T12:27:50.164Z]  INFO: pact-node@10.2.4/10405:
+
     Tagging version fe0b6a3 of FrontendWebsite as "prod"
     Tagging version fe0b6a3 of FrontendWebsite as "test"
     Publishing FrontendWebsite/ProductService pact to pact broker at http://localhost:8081
     The given version of pact is already published. Overwriting...
     The latest version of this pact can be accessed at the following URL (use this to configure the provider verification):
     http://localhost:8081/pacts/provider/ProductService/consumer/FrontendWebsite/latest
-    
-    
+
+
 Pact contract publishing complete!
 
 Head over to http://localhost:8081 and login with
@@ -1812,7 +1812,7 @@ In `provider/product/product.pact.test.js`:
 pactUrls: [
   path.resolve(__dirname, '../pacts/frontendwebsite-productservice.json')
 ],
-  
+
 // with
 pactBrokerUrl: process.env.PACT_BROKER_URL || "http://localhost:8081",
 pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
@@ -1869,11 +1869,11 @@ You can run the `pact-broker can-i-deploy` checks as follows:
                --broker-password pact_workshop \
                --latest
 
-Computer says yes \o/ 
+Computer says yes \o/
 
 CONSUMER        | C.VERSION | PROVIDER       | P.VERSION | SUCCESS?
 ----------------|-----------|----------------|-----------|---------
-FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true    
+FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
 
 All required verification results are published and successful
 
@@ -1886,11 +1886,11 @@ All required verification results are published and successful
                 --broker-password pact_workshop \
                 --latest
 
-Computer says yes \o/ 
+Computer says yes \o/
 
 CONSUMER        | C.VERSION | PROVIDER       | P.VERSION | SUCCESS?
 ----------------|-----------|----------------|-----------|---------
-FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true    
+FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
 
 All required verification results are published and successful
 ```
