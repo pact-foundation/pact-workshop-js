@@ -14,17 +14,10 @@ const provider = new Pact({
 
 describe("API Pact test", () => {
 
-    beforeAll(() => {
-        return provider.setup();
-    });
 
-    afterEach(async () => {
-        await provider.verify();
-    });
-
-    afterAll(async () => {
-        return provider.finalize();
-    });
+    beforeAll(() => provider.setup());
+    afterEach(() => provider.verify());
+    afterAll(() => provider.finalize());
 
     describe("getting all products", () => {
         test("products exists", async () => {
