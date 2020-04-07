@@ -39,7 +39,9 @@ describe("Pact Verification", () => {
             }
         };
 
-        return new Verifier(opts).verifyProvider().finally(() => {
+        return new Verifier(opts).verifyProvider().then(output => {
+            console.log(output);
+        }).finally(() => {
             server.close();
         });
     })
