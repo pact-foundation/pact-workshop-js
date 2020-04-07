@@ -1862,7 +1862,7 @@ With just a simple use of the `pact-broker` [can-i-deploy tool](https://docs.pac
 You can run the `pact-broker can-i-deploy` checks as follows:
 
 ```console
-❯ pact-broker can-i-deploy \
+❯ npx pact-broker can-i-deploy \
                --pacticipant FrontendWebsite \
                --broker-base-url http://localhost:8081 \
                --broker-username pact_workshop \
@@ -1879,7 +1879,7 @@ All required verification results are published and successful
 
 ----------------------------
 
-❯ pact-broker can-i-deploy \
+❯ npx pact-broker can-i-deploy \
                 --pacticipant ProductService \
                 --broker-base-url http://localhost:8081 \
                 --broker-username pact_workshop \
