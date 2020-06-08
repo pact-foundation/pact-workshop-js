@@ -18,7 +18,7 @@ describe("Pact Verification", () => {
             provider: "ProductService",
             providerVersion: "1.0.0",
             pactUrls: [
-                path.resolve(__dirname, '../pacts/frontendwebsite-productservice.json')
+                path.resolve(__dirname, '../../consumer/pacts/frontendwebsite-productservice.json')
             ],
             stateHandlers: {
                 "product with ID 10 exists": () => {
