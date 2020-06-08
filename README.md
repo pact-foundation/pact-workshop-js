@@ -377,9 +377,9 @@ A pact file should have been generated in *consumer/pacts/frontendwebsite-produc
 
 ## Step 4 - Verify the provider
 
-We will need to copy the Pact contract file that was produced from the consumer test into the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract.
+We will need to share the Pact contract file that was produced from the consumer test for the Provider module to verify. This will help us verify that the provider can meet the requirements as set out in the contract.
 
-Copy the contract located in `consumer/pacts/frontendwebsite-productservice.json` to `provider/pacts/frontendwebsite-productservice.json`.
+Usually, you would share a contract using a Pact Broker. We will cover this in step 11, so for now we will configure the provider pact verification to point to the relative path of the new contract: `../../consumer/pacts/frontendwebsite-productservice.json`.
 
 Now let's make a start on writing Pact tests to validate the consumer contract:
 
@@ -402,7 +402,7 @@ describe("Pact Verification", () => {
             provider: "ProductService",
             providerVersion: "1.0.0",
             pactUrls: [
-                path.resolve(__dirname, '../pacts/frontendwebsite-productservice.json')
+                path.resolve(__dirname, '../../consumer/pacts/frontendwebsite-productservice.json')
             ]
         };
 
