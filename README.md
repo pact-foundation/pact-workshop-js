@@ -1718,7 +1718,7 @@ if (!process.env.CI && !process.env.PUBLISH_PACT) {
     return
 }
 
-let pactBrokerUrl = process.env.PACT_BROKER_URL || 'http://localhost:8081';
+let pactBrokerUrl = process.env.PACT_BROKER_URL || 'http://localhost:8000';
 let pactBrokerUsername = process.env.PACT_BROKER_USERNAME || 'pact_workshop';
 let pactBrokerPassword = process.env.PACT_BROKER_PASSWORD || 'pact_workshop';
 
@@ -1780,26 +1780,26 @@ Time:        2.653s
 Ran all test suites matching /pact.spec.js/i.
 
 [2020-01-14T12:27:49.592Z]  INFO: pact-node@10.2.4/10405: Publishing Pacts to Broker
-[2020-01-14T12:27:49.593Z]  INFO: pact-node@10.2.4/10405: Publishing pacts to broker at: http://localhost:8081
+[2020-01-14T12:27:49.593Z]  INFO: pact-node@10.2.4/10405: Publishing pacts to broker at: http://localhost:8000
 [2020-01-14T12:27:50.164Z]  INFO: pact-node@10.2.4/10405:
 
     Tagging version fe0b6a3 of FrontendWebsite as "prod"
     Tagging version fe0b6a3 of FrontendWebsite as "test"
-    Publishing FrontendWebsite/ProductService pact to pact broker at http://localhost:8081
+    Publishing FrontendWebsite/ProductService pact to pact broker at http://localhost:8000
     The given version of pact is already published. Overwriting...
     The latest version of this pact can be accessed at the following URL (use this to configure the provider verification):
-    http://localhost:8081/pacts/provider/ProductService/consumer/FrontendWebsite/latest
+    http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/latest
 
 
 Pact contract publishing complete!
 
-Head over to http://localhost:8081 and login with
+Head over to http://localhost:8000 and login with
 => Username: pact_workshop
 => Password: pact_workshop
 to see your published contracts.
 ```
 
-Have a browse around the broker on http://localhost:8081 (with username/password: `pact_workshop`/`pact_workshop`) and see your newly published contract!
+Have a browse around the broker on http://localhost:8000 (with username/password: `pact_workshop`/`pact_workshop`) and see your newly published contract!
 
 ### Verify contracts on Provider
 
@@ -1814,7 +1814,7 @@ pactUrls: [
 ],
 
 // with
-pactBrokerUrl: process.env.PACT_BROKER_URL || "http://localhost:8081",
+pactBrokerUrl: process.env.PACT_BROKER_URL || "http://localhost:8000",
 pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
 pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 ```
@@ -1864,7 +1864,7 @@ You can run the `pact-broker can-i-deploy` checks as follows:
 ```console
 ❯ npx pact-broker can-i-deploy \
                --pacticipant FrontendWebsite \
-               --broker-base-url http://localhost:8081 \
+               --broker-base-url http://localhost:8000 \
                --broker-username pact_workshop \
                --broker-password pact_workshop \
                --latest
@@ -1881,7 +1881,7 @@ All required verification results are published and successful
 
 ❯ npx pact-broker can-i-deploy \
                 --pacticipant ProductService \
-                --broker-base-url http://localhost:8081 \
+                --broker-base-url http://localhost:8000 \
                 --broker-username pact_workshop \
                 --broker-password pact_workshop \
                 --latest
