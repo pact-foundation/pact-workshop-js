@@ -17,7 +17,7 @@ services:
     links:
       - postgres
     ports:
-      - 8081:80
+      - 8000:80
     environment:
       PACT_BROKER_BASIC_AUTH_USERNAME: pact_workshop
       PACT_BROKER_BASIC_AUTH_PASSWORD: pact_workshop

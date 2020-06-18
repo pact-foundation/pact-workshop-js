@@ -16,7 +16,7 @@ describe("Pact Verification", () => {
             providerBaseUrl: "http://localhost:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
-            pactBrokerUrl: process.env.PACT_BROKER_URL || "http://localhost:8081",
+            pactBrokerUrl: process.env.PACT_BROKER_URL || "http://localhost:8000",
             pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
             pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
             stateHandlers: {
@@ -54,7 +54,9 @@ describe("Pact Verification", () => {
             });
         }
 
-        return new Verifier(opts).verifyProvider().finally(() => {
+        return new Verifier(opts).verifyProvider().then(output => {
+            console.log(output);
+        }).finally(() => {
             server.close();
         });
     })
