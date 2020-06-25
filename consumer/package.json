@@ -4,13 +4,13 @@
   "private": true,
   "dependencies": {
     "axios": "^0.19.1",
+    "prop-types": "latest",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-router": "latest",
-    "react-router-dom": "^5.1.2",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.3.0",
-    "spectre.css": "^0.5.8",
-    "prop-types": "latest"
+    "spectre.css": "^0.5.8"
   },
   "scripts": {
     "start": "react-scripts start",
