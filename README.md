@@ -109,7 +109,7 @@ Now lets create a basic test for our API client. We're going to check 2 things:
 1. That our client code hits the expected endpoint
 1. That the response is marshalled into an object that is usable, with the correct ID
 
-You can see the client interface test we created in `consumer/src/api.pact.spec.js`:
+You can see the client interface test we created in `consumer/src/api.spec.js`:
 
 ```javascript
 import API from "./api";
