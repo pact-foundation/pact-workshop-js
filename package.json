@@ -8,7 +8,6 @@
     "lint": "concurrently \"cd consumer/ && npx eslint .\" \"cd provider/ && npx eslint .\""
   },
   "dependencies": {
-    "@pact-foundation/pact": "^9.11.1",
     "concurrently": "^5.0.2"
   }
 }
