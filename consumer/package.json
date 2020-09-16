@@ -17,7 +17,7 @@
     "build": "react-scripts build",
     "test": "CI=true react-scripts test",
     "eject": "react-scripts eject",
-    "test:pact": "CI=true react-scripts test pact.spec.js",
+    "test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
     "posttest:pact": "node publish.pact.js"
   },
   "eslintConfig": {
@@ -36,8 +36,7 @@
     ]
   },
   "devDependencies": {
-    "@pact-foundation/pact": "^9.6.0",
-    "@pact-foundation/pact-node": "^10.2.4",
+    "@pact-foundation/pact": "^9.11.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",
