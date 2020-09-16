@@ -17,7 +17,7 @@
     "build": "react-scripts build",
     "test": "CI=true react-scripts test",
     "eject": "react-scripts eject",
-    "test:pact": "CI=true react-scripts test pact.spec.js",
+    "test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
     "posttest:pact": "node publish.pact.js"
   },
   "eslintConfig": {

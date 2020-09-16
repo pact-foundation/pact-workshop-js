@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "npx jest",
-    "test:pact": "npx jest --testMatch \"**/*.pact.test.js\""
+    "test:pact": "npx jest --testTimeout 30000 --testMatch \"**/*.pact.test.js\""
   },
   "dependencies": {
     "cors": "^2.8.5",
