@@ -92,13 +92,10 @@ export class API {
 }
 ```
 
+After forking or cloning the repository, we may want to install the dependencies `npm install`.
 We can run the client with `npm start --prefix consumer` - it should fail with the error below, because the Provider is not running.
 
-```console
-Error: Network Error
-    at createError (http://localhost:3000/static/js/0.chunk.js:963:15)
-    at XMLHttpRequest.handleError (http://localhost:3000/static/js/0.chunk.js:458:14)
-```
+![Failed step1 page](diagrams/workshop_step1_failed_page.png)
 
 *Move on to [step 2](https://github.com/pact-foundation/pact-workshop-js/tree/step2#step-2---client-tested-but-integration-fails)*
 
@@ -109,7 +106,7 @@ Now lets create a basic test for our API client. We're going to check 2 things:
 1. That our client code hits the expected endpoint
 1. That the response is marshalled into an object that is usable, with the correct ID
 
-You can see the client interface test we created in `consumer/src/api.pact.spec.js`:
+You can see the client interface test we created in `consumer/src/api.spec.js`:
 
 ```javascript
 import API from "./api";
@@ -118,7 +115,7 @@ import nock from "nock";
 describe("API", () => {
 
     test("get all products", async () => {
-        let products = [
+        const products = [
             {
                 "id": "9",
                 "type": "CREDIT_CARD",
@@ -137,12 +134,12 @@ describe("API", () => {
             .reply(200,
                 products,
                 {'Access-Control-Allow-Origin': '*'});
-        let respProducts = await API.getAllProducts();
+        const respProducts = await API.getAllProducts();
         expect(respProducts).toEqual(products);
     });
 
     test("get product ID 50", async () => {
-        let product = {
+        const product = {
             "id": "50",
             "type": "CREDIT_CARD",
             "name": "28 Degrees",
@@ -151,7 +148,7 @@ describe("API", () => {
         nock(API.url)
             .get('/products/50')
             .reply(200, product, {'Access-Control-Allow-Origin': '*'});
-        let respProduct = await API.getProduct("50");
+        const respProduct = await API.getProduct("50");
         expect(respProduct).toEqual(product);
     });
 });
@@ -179,6 +176,8 @@ Snapshots:   0 total
 Time:        1.03s
 Ran all test suites.
 ```
+
+If you encounter failing tests after running `npm test --prefix consumer`, make sure that the current branch is `step2`.
 
 Meanwhile, our provider team has started building out their API in parallel. Let's run our website against our provider (you'll need two terminals to do this):
 
@@ -241,8 +240,8 @@ In `consumer/src/api.pact.spec.js`:
 ```javascript
 import path from "path";
 import {Pact} from "@pact-foundation/pact";
-import * as Matchers from "@pact-foundation/pact/dsl/matchers";
 import {API} from "./api";
+import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
 
 const provider = new Pact({
     consumer: 'FrontendWebsite',
@@ -255,17 +254,10 @@ const provider = new Pact({
 
 describe("API Pact test", () => {
 
-    beforeAll(() => {
-        return provider.setup();
-    });
 
-    afterEach(async () => {
-        await provider.verify();
-    });
-
-    afterAll(async () => {
-        return provider.finalize();
-    });
+    beforeAll(() => provider.setup());
+    afterEach(() => provider.verify());
+    afterAll(() => provider.finalize());
 
     describe("getting all products", () => {
         test("products exists", async () => {
@@ -283,21 +275,20 @@ describe("API Pact test", () => {
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8'
                     },
-                    body: Matchers.eachLike({
-                        id: Matchers.like("09"),
-                        type: Matchers.like("CREDIT_CARD"),
-                        name: Matchers.like("Gem Visa")
-                    }, {min: 2}),
+                    body: eachLike({
+                        id: "09",
+                        type: "CREDIT_CARD",
+                        name: "Gem Visa"
+                    }),
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getAllProducts();
+            const product = await api.getAllProducts();
 
             expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"},
                 {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
             ]);
         });
@@ -319,18 +310,18 @@ describe("API Pact test", () => {
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8'
                     },
-                    body: {
-                        id: Matchers.like("10"),
-                        type: Matchers.like("CREDIT_CARD"),
-                        name: Matchers.like("28 Degrees")
-                    },
+                    body: like({
+                        id: "10",
+                        type: "CREDIT_CARD",
+                        name: "28 Degrees"
+                    }),
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getProduct("10");
+            const product = await api.getProduct("10");
 
             expect(product).toStrictEqual({
                 id: "10",
@@ -351,7 +342,7 @@ To simplify running the tests, add this to `consumer/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "CI=true react-scripts test pact.spec.js",
+"test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
 ```
 
 Running this test still passes, but it creates a pact file which we can use to validate our assumptions on the provider side, and have conversation around.
@@ -396,17 +387,19 @@ const server = app.listen("8080");
 
 describe("Pact Verification", () => {
     it("validates the expectations of ProductService", () => {
-        let opts = {
+        const opts = {
             logLevel: "INFO",
             providerBaseUrl: "http://localhost:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
             pactUrls: [
-                path.resolve(__dirname, '../pacts/frontendwebsite-productservice.json')
+                path.resolve(__dirname, '../../consumer/pacts/frontendwebsite-productservice.json')
             ]
         };
 
-        return new Verifier(opts).verifyProvider().finally(() => {
+        return new Verifier(opts).verifyProvider().then(output => {
+            console.log(output);
+        }).finally(() => {
             server.close();
         });
     })
@@ -417,7 +410,7 @@ To simplify running the tests, add this to `provider/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "npx jest --testMatch \"**/*.pact.test.js\""
+"test:pact": "npx jest --testTimeout=30000 --testMatch \"**/*.pact.test.js\""
 ```
 
 We now need to validate the pact generated by the consumer is valid, by executing it against the running service provider, which should fail:
@@ -676,10 +669,10 @@ test("no products exists", async () => {
     },
   });
 
-  let api = new API(provider.mockService.baseUrl);
+  const api = new API(provider.mockService.baseUrl);
 
   // make request to Pact mock server
-  let product = await api.getAllProducts();
+  const product = await api.getAllProducts();
 
   expect(product).toStrictEqual([]);
 });
@@ -700,7 +693,7 @@ test("product does not exist", async () => {
     },
   });
 
-  let api = new API(provider.mockService.baseUrl);
+  const api = new API(provider.mockService.baseUrl);
 
   // make request to Pact mock server
   await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
@@ -986,8 +979,8 @@ In `consumer/src/api.pact.spec.js`:
 ```javascript
 import path from "path";
 import {Pact} from "@pact-foundation/pact";
-import * as Matchers from "@pact-foundation/pact/dsl/matchers";
 import {API} from "./api";
+import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
 
 const provider = new Pact({
     consumer: 'FrontendWebsite',
@@ -1000,17 +993,10 @@ const provider = new Pact({
 
 describe("API Pact test", () => {
 
-    beforeAll(() => {
-        return provider.setup();
-    });
 
-    afterEach(async () => {
-        await provider.verify();
-    });
-
-    afterAll(async () => {
-        return provider.finalize();
-    });
+    beforeAll(() => provider.setup());
+    afterEach(() => provider.verify());
+    afterAll(() => provider.finalize());
 
     describe("getting all products", () => {
         test("products exists", async () => {
@@ -1023,7 +1009,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/products',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -1031,21 +1017,20 @@ describe("API Pact test", () => {
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8'
                     },
-                    body: Matchers.eachLike({
-                        id: Matchers.like("09"),
-                        type: Matchers.like("CREDIT_CARD"),
-                        name: Matchers.like("Gem Visa")
-                    }, {min: 2}),
+                    body: eachLike({
+                        id: "09",
+                        type: "CREDIT_CARD",
+                        name: "Gem Visa"
+                    }),
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getAllProducts();
+            const product = await api.getAllProducts();
 
             expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"},
                 {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
             ]);
         });
@@ -1060,7 +1045,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/products',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -1072,10 +1057,10 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getAllProducts();
+            const product = await api.getAllProducts();
 
             expect(product).toStrictEqual([]);
         });
@@ -1095,7 +1080,7 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
             await expect(api.getAllProducts()).rejects.toThrow("Request failed with status code 401");
@@ -1113,7 +1098,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/product/10',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -1121,18 +1106,18 @@ describe("API Pact test", () => {
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8'
                     },
-                    body: {
-                        id: Matchers.like("10"),
-                        type: Matchers.like("CREDIT_CARD"),
-                        name: Matchers.like("28 Degrees")
-                    },
+                    body: like({
+                        id: "10",
+                        type: "CREDIT_CARD",
+                        name: "28 Degrees"
+                    }),
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
-            let product = await api.getProduct("10");
+            const product = await api.getProduct("10");
 
             expect(product).toStrictEqual({
                 id: "10",
@@ -1151,7 +1136,7 @@ describe("API Pact test", () => {
                     method: 'GET',
                     path: '/product/11',
                     headers: {
-                        "Authorization": Matchers.like("Bearer 2019-01-14T11:34:18.045Z")
+                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
                     }
                 },
                 willRespondWith: {
@@ -1159,7 +1144,7 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
             await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
@@ -1180,14 +1165,13 @@ describe("API Pact test", () => {
                 },
             });
 
-            let api = new API(provider.mockService.baseUrl);
+            const api = new API(provider.mockService.baseUrl);
 
             // make request to Pact mock server
             await expect(api.getProduct("10")).rejects.toThrow("Request failed with status code 401");
         });
     });
 });
-
 ```
 
 Generate a new Pact file:
