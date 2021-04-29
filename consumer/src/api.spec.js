@@ -35,7 +35,7 @@ describe("API", () => {
             "version": "v1"
         };
         nock(API.url)
-            .get('/products/50')
+            .get('/product/50')
             .reply(200, product, {'Access-Control-Allow-Origin': '*'});
         const respProduct = await API.getProduct("50");
         expect(respProduct).toEqual(product);
