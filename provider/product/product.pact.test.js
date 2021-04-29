@@ -16,9 +16,8 @@ describe("Pact Verification", () => {
             providerBaseUrl: "http://localhost:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
-            pactBrokerUrl: process.env.PACT_BROKER_URL || "http://localhost:8000",
-            pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
-            pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
+            pactBrokerUrl :process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pact.dius.com.au',
+            pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
             stateHandlers: {
                 "product with ID 10 exists": () => {
                     controller.repository.products = new Map([
