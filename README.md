@@ -1912,7 +1912,7 @@ First, in the consumer project we need to tell Pact about our broker.
 
 In `consumer/publish.pact.js`:
 
-```js
+```javascript
 const pact = require('@pact-foundation/pact-node');
 
 if (!process.env.CI && !process.env.PUBLISH_PACT) {
