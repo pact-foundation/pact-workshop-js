@@ -5,7 +5,7 @@ if (!process.env.CI && !process.env.PUBLISH_PACT) {
     process.exit(0)
 }
 
-const pactBrokerUrl = process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pact.dius.com.au';
+const pactBrokerUrl = process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pactflow.io';
 const pactBrokerToken = process.env.PACT_BROKER_TOKEN || 'pact_workshop';
 
 const gitHash = require('child_process')

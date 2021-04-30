@@ -1,4 +1,4 @@
-const { Verifier } = require('@pact-foundation/pact');
+const { Verifier } = require(.pactflow.io@pact-foundation/pact');
 const controller = require('./product.controller');
 const Product = require('./product');
 
@@ -16,7 +16,7 @@ describe("Pact Verification", () => {
             providerBaseUrl: "http://localhost:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
-            pactBrokerUrl :process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pact.dius.com.au',
+            pactBrokerUrl :process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pactflow.io',
             pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
             stateHandlers: {
                 "product with ID 10 exists": () => {

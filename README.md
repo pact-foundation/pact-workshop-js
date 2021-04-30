@@ -1899,20 +1899,20 @@ Click on settings -> API Tokens -> Read/write token -> COPY ENV VARS
 You can set these in your terminal
 
 ```sh
-export PACT_BROKER_URL=https://<your_broker_name>.pact.dius.com.au
+export PACT_BROKER_URL=https://<your_broker_name>.pactflow.io
 export PACT_BROKER_TOKEN=exampleToken
 ```
 
+### Update your scripts to use the pact broker token based authentication method
 
 ```
 
-### Update your scripts to use the pact broker token based authentication method
 
 First, in the consumer project we need to tell Pact about our broker.
 
 In `consumer/publish.pact.js`:
 
-```groovy
+```js
 const pact = require('@pact-foundation/pact-node');
 
 if (!process.env.CI && !process.env.PUBLISH_PACT) {
@@ -1920,7 +1920,7 @@ if (!process.env.CI && !process.env.PUBLISH_PACT) {
     process.exit(0)
 }
 
-const pactBrokerUrl = process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pact.dius.com.au';
+const pactBrokerUrl = process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pactflow.io';
 const pactBrokerToken = process.env.PACT_BROKER_TOKEN || 'pact_workshop';
 
 const gitHash = require('child_process')
@@ -1946,13 +1946,6 @@ pact
     .catch(e => {
         console.log('Pact contract publishing failed: ', e)
     });
-```
-
-Now add this to `consumer/package.json`:
-
-```javascript
-// add this under scripts
-"posttest:pact": "node publish.pact.js",
 ```
 
 Now run
@@ -1984,19 +1977,19 @@ Ran all test suites matching /pact.spec.js/i.
 > node publish.pact.js
 
 INFO: pact-node@10.10.1/83194 on safmac.local: Publishing Pacts to Broker
-INFO: pact-node@10.10.1/83194 on safmac.local: Publishing pacts to broker at: https://you54f.pact.dius.com.au
+INFO: pact-node@10.10.1/83194 on safmac.local: Publishing pacts to broker at: https://you54f.pactflow.io
 INFO: pact-node@10.10.1/83194 on safmac.local: 
     
     Tagging version d775c1d of FrontendWebsite as "prod"
     Tagging version d775c1d of FrontendWebsite as "test"
-    Publishing FrontendWebsite/ProductService pact to pact broker at https://you54f.pact.dius.com.au
+    Publishing FrontendWebsite/ProductService pact to pact broker at https://you54f.pactflow.io
     The latest version of this pact can be accessed at the following URL (use this to configure the provider verification):
-    https://you54f.pact.dius.com.au/pacts/provider/ProductService/consumer/FrontendWebsite/latest
+    https://you54f.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/latest
     
     
 Pact contract publishing complete!
 
-Head over to https://you54f.pact.dius.com.au
+Head over to https://you54f.pactflow.io
 to see your published contracts.
 ```
 
@@ -2015,7 +2008,7 @@ pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
 pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 
 // with
-pactBrokerUrl :process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pact.dius.com.au',
+pactBrokerUrl :process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pactflow.io',
 pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
 ```
 
@@ -2034,7 +2027,7 @@ INFO: pact-node@10.10.1/84537 on safmac.local: Verifying Pact Files
  PASS  product/product.pact.test.js (6.786s)
   Pact Verification
     ✓ validates the expectations of ProductService (6006ms)    
-    INFO: Verification results published to https://you54f.pact.dius.com.au/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/c4b62aae734255d00eba62ced76594343a148e29/verification-results/256
+    INFO: Verification results published to https://you54f.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/c4b62aae734255d00eba62ced76594343a148e29/verification-results/256
         
 ```
 
