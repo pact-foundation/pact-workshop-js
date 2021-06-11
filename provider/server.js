@@ -1,7 +1,7 @@
 const app = require('express')();
 const cors = require('cors');
 const routes = require('./product/product.routes');
-const port = 8081;
+const port = 8080;
 
 const init = () => {
     app.use(cors());
