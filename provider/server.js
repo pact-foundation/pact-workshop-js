@@ -2,7 +2,7 @@ const app = require('express')();
 const cors = require('cors');
 const routes = require('./product/product.routes');
 const authMiddleware = require('./middleware/auth.middleware');
-const port = 8081;
+const port = 8080;
 
 const init = () => {
     app.use(cors());
