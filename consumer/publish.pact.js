@@ -5,9 +5,8 @@ if (!process.env.CI && !process.env.PUBLISH_PACT) {
     process.exit(0)
 }
 
-const pactBrokerUrl = process.env.PACT_BROKER_URL || 'http://localhost:8000';
-const pactBrokerUsername = process.env.PACT_BROKER_USERNAME || 'pact_workshop';
-const pactBrokerPassword = process.env.PACT_BROKER_PASSWORD || 'pact_workshop';
+const pactBrokerUrl = process.env.PACT_BROKER_URL || 'https://<your_broker_name>.pactflow.io';
+const pactBrokerToken = process.env.PACT_BROKER_TOKEN || 'pact_workshop';
 
 const gitHash = require('child_process')
     .execSync('git rev-parse --short HEAD')
@@ -16,8 +15,7 @@ const gitHash = require('child_process')
 const opts = {
     pactFilesOrDirs: ['./pacts/'],
     pactBroker: pactBrokerUrl,
-    pactBrokerUsername: pactBrokerUsername,
-    pactBrokerPassword: pactBrokerPassword,
+    pactBrokerToken: pactBrokerToken,
     tags: ['prod', 'test'],
     consumerVersion: gitHash
 };
@@ -27,9 +25,7 @@ pact
     .then(() => {
         console.log('Pact contract publishing complete!');
         console.log('');
-        console.log(`Head over to ${pactBrokerUrl} and login with`);
-        console.log(`=> Username: ${pactBrokerUsername}`);
-        console.log(`=> Password: ${pactBrokerPassword}`);
+        console.log(`Head over to ${pactBrokerUrl}`);
         console.log('to see your published contracts.')
     })
     .catch(e => {
