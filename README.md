@@ -21,6 +21,7 @@ This workshop should take from 1 to 2 hours, depending on how deep you want to g
 - [step 9: **pact test**](https://github.com/pact-foundation/pact-workshop-js/tree/step9#step-9---implement-authorisation-on-the-provider): Update API to handle `401` case
 - [step 10: **request filters**](https://github.com/pact-foundation/pact-workshop-js/tree/step10#step-10---request-filters-on-the-provider): Fix the provider to support the `401` case
 - [step 11: **pact broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker): Implement a broker workflow for integration with CI/CD
+- [step 12: **pactflow broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step12#step-12---using-a-pactflow-broker): Implement a managed pactflow workflow for integration with CI/CD
 
 _NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally. For example, to move to step 2 run the following: `git checkout step2`_
 
@@ -1702,7 +1703,7 @@ if (!process.env.CI && !process.env.PUBLISH_PACT) {
     return
 }
 
-let pactBrokerUrl = process.env.PACT_BROKER_URL || 'http://localhost:8000';
+let pactBrokerUrl = process.env.PACT_BROKER_BASE_URL || 'http://localhost:8000';
 let pactBrokerUsername = process.env.PACT_BROKER_USERNAME || 'pact_workshop';
 let pactBrokerPassword = process.env.PACT_BROKER_PASSWORD || 'pact_workshop';
 
@@ -1798,7 +1799,7 @@ pactUrls: [
 ],
 
 // with
-pactBrokerUrl: process.env.PACT_BROKER_URL || "http://localhost:8000",
+pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://localhost:8000",
 pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
 pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 ```
@@ -1879,6 +1880,149 @@ FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
 All required verification results are published and successful
 ```
 
+## Step 12 - Using a Pactflow Broker
 
+In step 11 we've been publishing our pacts from the consumer and provider projects to our locally hosted open source Pact broker.
+
+We can use a managed [Pact Broker](https://pactflow.io) from Pactflow to do this instead.
+
+Using a hosted pact broker with pactflow, will allow you to concentrate on testing your application without having to worry about managing infrastructure, along with a number of other useful [features](https://pactflow.io/features).
+
+### Creating a pactflow account
+
+Create a new [Pactflow](https://pactflow.io/pricing) account and signup to the free Starter Plan. You will be emailed a set of credentials to access your account, these credentials are only for accessing the UI.
+
+Grab your [API Token](https://docs.pactflow.io/#configuring-your-api-token)(Click on settings -> API Tokens -> Read/write token -> COPY ENV VARS) and set the environment variables in your terminal as follows:
+
+
+```sh
+export PACT_BROKER_BASE_URL=https://<your_broker_name>.pactflow.io
+export PACT_BROKER_TOKEN=exampleToken
+```
+
+### Update your scripts to use the pact broker token based authentication method
+
+First, in the consumer project we need to tell Pact about our broker.
+
+In `consumer/publish.pact.js`:
+
+```javascript
+const pact = require('@pact-foundation/pact-node');
+
+if (!process.env.CI && !process.env.PUBLISH_PACT) {
+    console.log("skipping Pact publish...");
+    process.exit(0)
+}
+
+const pactBrokerUrl = process.env.PACT_BROKER_BASE_URL || 'https://<your_broker_name>.pactflow.io';
+const pactBrokerToken = process.env.PACT_BROKER_TOKEN || 'pact_workshop';
+
+const gitHash = require('child_process')
+    .execSync('git rev-parse --short HEAD')
+    .toString().trim();
+
+const opts = {
+    pactFilesOrDirs: ['./pacts/'],
+    pactBroker: pactBrokerUrl,
+    pactBrokerToken: pactBrokerToken,
+    tags: ['prod', 'test'],
+    consumerVersion: gitHash
+};
+
+pact
+    .publishPacts(opts)
+    .then(() => {
+        console.log('Pact contract publishing complete!');
+        console.log('');
+        console.log(`Head over to ${pactBrokerUrl}`);
+        console.log('to see your published contracts.')
+    })
+    .catch(e => {
+        console.log('Pact contract publishing failed: ', e)
+    });
+```
+
+Now run
+
+```console
+❯ CI=true npm run test:pact --prefix consumer
+
+> consumer@0.1.0 test:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/consumer
+> CI=true react-scripts test --testTimeout 30000 pact.spec.js
+
+PASS src/api.pact.spec.js
+  API Pact test
+    getting all products
+      ✓ products exists (19ms)
+      ✓ no products exists (10ms)
+      ✓ no auth token (10ms)
+    getting one product
+      ✓ ID 10 exists (10ms)
+      ✓ product does not exist (8ms)
+      ✓ no auth token (12ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       6 passed, 6 total
+Snapshots:   0 total
+Time:        1.821s, estimated 2s
+Ran all test suites matching /pact.spec.js/i.
+
+> consumer@0.1.0 posttest:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/consumer
+> node publish.pact.js
+
+INFO: pact-node@10.10.1/83194 on safmac.local: Publishing Pacts to Broker
+INFO: pact-node@10.10.1/83194 on safmac.local: Publishing pacts to broker at: https://you54f.pactflow.io
+INFO: pact-node@10.10.1/83194 on safmac.local:
+
+    Tagging version d775c1d of FrontendWebsite as "prod"
+    Tagging version d775c1d of FrontendWebsite as "test"
+    Publishing FrontendWebsite/ProductService pact to pact broker at https://you54f.pactflow.io
+    The latest version of this pact can be accessed at the following URL (use this to configure the provider verification):
+    https://you54f.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/latest
+
+
+Pact contract publishing complete!
+
+Head over to https://you54f.pactflow.io
+to see your published contracts.
+```
+
+Have a browse around your pactflow broker and see your newly published contract
+
+### Verify contracts on Provider
+
+All we need to do for the provider is update where it finds its pacts, from local broker, to one from a hosted pactflow broker
+
+In `provider/product/product.pact.test.js`:
+
+```javascript
+//replace
+pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://localhost:8000",
+pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
+pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
+
+// with
+pactBrokerUrl :process.env.PACT_BROKER_BASE_URL || 'https://<your_broker_name>.pactflow.io',
+pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
+```
+
+
+Let's run the provider verification one last time after this change:
+
+```console
+❯ PACT_PUBLISH_RESULTS=true npm run test:pact --prefix provider
+
+> product-service@1.0.0 test:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/provider
+> npx jest --testTimeout 30000 --testMatch "**/*.pact.test.js"
+
+INFO: pact@9.11.1/84537 on safmac.local: Verifying provider
+INFO: pact-node@10.10.1/84537 on safmac.local: Verifying Pacts.
+INFO: pact-node@10.10.1/84537 on safmac.local: Verifying Pact Files
+ PASS  product/product.pact.test.js (6.786s)
+  Pact Verification
+    ✓ validates the expectations of ProductService (6006ms)
+    INFO: Verification results published to https://you54f.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/c4b62aae734255d00eba62ced76594343a148e29/verification-results/256
+
+```
 
 That's it - you're now a Pact pro. Go build 🔨
