@@ -1702,7 +1702,7 @@ if (!process.env.CI && !process.env.PUBLISH_PACT) {
     return
 }
 
-let pactBrokerUrl = process.env.PACT_BROKER_URL || 'http://localhost:8000';
+let pactBrokerUrl = process.env.PACT_BROKER_BASE_URL || 'http://localhost:8000';
 let pactBrokerUsername = process.env.PACT_BROKER_USERNAME || 'pact_workshop';
 let pactBrokerPassword = process.env.PACT_BROKER_PASSWORD || 'pact_workshop';
 
@@ -1798,7 +1798,7 @@ pactUrls: [
 ],
 
 // with
-pactBrokerUrl: process.env.PACT_BROKER_URL || "http://localhost:8000",
+pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://localhost:8000",
 pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
 pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 ```

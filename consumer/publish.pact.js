@@ -5,7 +5,7 @@ if (!process.env.CI && !process.env.PUBLISH_PACT) {
     process.exit(0)
 }
 
-const pactBrokerUrl = process.env.PACT_BROKER_URL || 'http://localhost:8000';
+const pactBrokerUrl = process.env.PACT_BROKER_BASE_URL || 'http://localhost:8000';
 const pactBrokerUsername = process.env.PACT_BROKER_USERNAME || 'pact_workshop';
 const pactBrokerPassword = process.env.PACT_BROKER_PASSWORD || 'pact_workshop';
 
