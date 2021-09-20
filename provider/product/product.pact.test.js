@@ -16,6 +16,7 @@ describe("Pact Verification", () => {
             providerBaseUrl: "http://localhost:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
+            providerVersionTags: ["test"],
             pactBrokerUrl :process.env.PACT_BROKER_BASE_URL || 'https://<your_broker_name>.pactflow.io',
             pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
             stateHandlers: {
@@ -47,7 +48,7 @@ describe("Pact Verification", () => {
             },
         };
 
-        if (process.env.CI || process.env.PACT_PUBLISH_RESULTS) {
+        if (process.env.CI) {
             Object.assign(opts, {
                 publishVerificationResult: true,
             });

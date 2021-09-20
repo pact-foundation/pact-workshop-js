@@ -369,9 +369,7 @@ A pact file should have been generated in *consumer/pacts/frontendwebsite-produc
 
 ## Step 4 - Verify the provider
 
-We will need to copy the Pact contract file that was produced from the consumer test into the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract.
-
-Copy the contract located in `consumer/pacts/frontendwebsite-productservice.json` to `provider/pacts/frontendwebsite-productservice.json`.
+We need to make the pact file (the contract) that was produced from the consumer test available to the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract. For now, we'll hard code the path to where it is saved in the consumer test, in step 11 we investigate a better way of doing this.
 
 Now let's make a start on writing Pact tests to validate the consumer contract:
 
@@ -604,12 +602,7 @@ Ran all test suites matching /pact.spec.js/i.
 ```
 
 
-
-Now we run the provider tests again with the updated contract
-
-Copy the updated contract located in `consumer/pacts/frontendwebsite-productservice.json` to `provider/pacts/frontendwebsite-productservice.json`.
-
-Run the command:
+Now we run the provider tests again with the updated contract, run the command:
 
 ```console
 ❯ npm run test:pact --prefix provider
@@ -723,7 +716,7 @@ Ran all test suites matching /pact.spec.js/i.
 
 ```
 
-What does our provider have to say about this new test. Again, copy the updated pact file into the provider's pact directory and run the command:
+What does our provider have to say about this new test:
 
 ```console
 ❯ npm run test:pact --prefix provider
@@ -1200,7 +1193,7 @@ Ran all test suites matching /pact.spec.js/i.
 
 We should now have two new interactions in our pact file.
 
-Let's test the provider. Copy the updated pact file into the provider's pact directory and run the command:
+Let's test the provider:
 
 ```console
 ❯ npm run test:pact --prefix provider
@@ -1806,7 +1799,7 @@ pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 
 ```javascript
 // add
-if (process.env.CI || process.env.PACT_PUBLISH_RESULTS) {
+if (process.env.CI || process.env.PACT_BROKER_PUBLISH_VERIFICATION_RESULTS) {
   Object.assign(opts, {
     publishVerificationResult: true,
   });
@@ -1819,7 +1812,7 @@ return new Verifier(opts).verifyProvider().finally(() => {
 Let's run the provider verification one last time after this change:
 
 ```console
-❯ PACT_PUBLISH_RESULTS=true npm run test:pact --prefix provider
+❯ PACT_BROKER_PUBLISH_VERIFICATION_RESULTS=true npm run test:pact --prefix provider
 
 [2020-01-14T12:34:08.157Z]  INFO: pact@9.5.0/10742: Verifying provider
 [2020-01-14T12:34:08.161Z]  INFO: pact-node@10.2.2/10742: Verifying Pacts.
@@ -1968,17 +1961,12 @@ Time:        1.821s, estimated 2s
 Ran all test suites matching /pact.spec.js/i.
 
 > consumer@0.1.0 posttest:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/consumer
-> node publish.pact.js
+> npx pact-broker publish ./pacts --tag test -a 1.0.0
 
-INFO: pact-node@10.10.1/83194 on safmac.local: Publishing Pacts to Broker
-INFO: pact-node@10.10.1/83194 on safmac.local: Publishing pacts to broker at: https://you54f.pactflow.io
-INFO: pact-node@10.10.1/83194 on safmac.local:
-
-    Tagging version d775c1d of FrontendWebsite as "prod"
-    Tagging version d775c1d of FrontendWebsite as "test"
-    Publishing FrontendWebsite/ProductService pact to pact broker at https://you54f.pactflow.io
-    The latest version of this pact can be accessed at the following URL (use this to configure the provider verification):
-    https://you54f.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/latest
+Tagging version 1.0.0 of FrontendWebsite as "test"
+Publishing FrontendWebsite/ProductService pact to pact broker at https://testdemo.pactflow.io
+The latest version of this pact can be accessed at the following URL (use this to configure the provider verification):
+https://you54f.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/latest
 
 
 Pact contract publishing complete!
@@ -2010,7 +1998,7 @@ pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
 Let's run the provider verification one last time after this change:
 
 ```console
-❯ PACT_PUBLISH_RESULTS=true npm run test:pact --prefix provider
+❯ CI=true npm run test:pact --prefix provider
 
 > product-service@1.0.0 test:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/provider
 > npx jest --testTimeout 30000 --testMatch "**/*.pact.test.js"
@@ -2024,5 +2012,43 @@ INFO: pact-node@10.10.1/84537 on safmac.local: Verifying Pact Files
     INFO: Verification results published to https://you54f.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/c4b62aae734255d00eba62ced76594343a148e29/verification-results/256
 
 ```
+
+### Can I deploy?
+
+As per step 11, we can use the `can-i-deploy` command to gate releases.
+
+You can run the `pact-broker can-i-deploy` checks as follows:
+
+```console
+❯ npx pact-broker can-i-deploy \
+               --pacticipant FrontendWebsite \
+               --version 1.0.0 \
+               --to test
+
+Computer says yes \o/
+
+CONSUMER        | C.VERSION | PROVIDER       | P.VERSION | SUCCESS?
+----------------|-----------|----------------|-----------|---------
+FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
+
+All required verification results are published and successful
+
+----------------------------
+
+❯ npx pact-broker can-i-deploy \
+                --pacticipant ProductService \
+                --version 1.0.0 \
+                --to test
+
+Computer says yes \o/
+
+CONSUMER        | C.VERSION | PROVIDER       | P.VERSION | SUCCESS?
+----------------|-----------|----------------|-----------|---------
+FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
+
+All required verification results are published and successful
+```
+
+_NOTE_: Because we have exported the `PACT_*` environment variables, we can omit the necessary flags on the command.
 
 That's it - you're now a Pact pro. Go build 🔨
