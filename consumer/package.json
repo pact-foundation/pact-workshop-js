@@ -18,7 +18,7 @@
     "test": "CI=true react-scripts test",
     "eject": "react-scripts eject",
     "test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
-    "posttest:pact": "node publish.pact.js"
+    "posttest:pact": "npx pact-broker publish ./pacts --tag test -a 1.0.0"
   },
   "eslintConfig": {
     "extends": "react-app"
