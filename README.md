@@ -368,9 +368,7 @@ A pact file should have been generated in *consumer/pacts/frontendwebsite-produc
 
 ## Step 4 - Verify the provider
 
-We will need to copy the Pact contract file that was produced from the consumer test into the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract.
-
-Copy the contract located in `consumer/pacts/frontendwebsite-productservice.json` to `provider/pacts/frontendwebsite-productservice.json`.
+We need to make the pact file (the contract) that was produced from the consumer test available to the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract. For now, we'll hard code the path to where it is saved in the consumer test, in step 11 we investigate a better way of doing this.
 
 Now let's make a start on writing Pact tests to validate the consumer contract:
 
