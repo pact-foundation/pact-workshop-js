@@ -601,10 +601,7 @@ Ran all test suites matching /pact.spec.js/i.
 ```
 
 
-
-Now we run the provider tests again with the updated contract
-
-Copy the updated contract located in `consumer/pacts/frontendwebsite-productservice.json` to `provider/pacts/frontendwebsite-productservice.json`.
+Now we run the provider tests again with the updated contract:
 
 Run the command:
 
