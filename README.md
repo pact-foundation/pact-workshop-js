@@ -602,9 +602,7 @@ Ran all test suites matching /pact.spec.js/i.
 
 
 
-Now we run the provider tests again with the updated contract
-
-Copy the updated contract located in `consumer/pacts/frontendwebsite-productservice.json` to `provider/pacts/frontendwebsite-productservice.json`.
+Now we run the provider tests again with the updated contract:
 
 Run the command:
 
@@ -720,7 +718,7 @@ Ran all test suites matching /pact.spec.js/i.
 
 ```
 
-What does our provider have to say about this new test. Again, copy the updated pact file into the provider's pact directory and run the command:
+What does our provider have to say about this new test:
 
 ```console
 ❯ npm run test:pact --prefix provider
@@ -1197,7 +1195,7 @@ Ran all test suites matching /pact.spec.js/i.
 
 We should now have two new interactions in our pact file.
 
-Let's test the provider. Copy the updated pact file into the provider's pact directory and run the command:
+Let's test the provider:
 
 ```console
 ❯ npm run test:pact --prefix provider
