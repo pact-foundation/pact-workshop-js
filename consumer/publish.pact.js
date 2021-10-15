@@ -1,6 +1,6 @@
 const pact = require('@pact-foundation/pact-node');
 
-if (!process.env.CI && !process.env.PUBLISH_PACT) {
+if (!process.env.CI) {
     console.log("skipping Pact publish...");
     process.exit(0)
 }
