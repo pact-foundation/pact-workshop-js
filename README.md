@@ -1693,7 +1693,7 @@ In `consumer/publish.pact.js`:
 const pact = require('@pact-foundation/pact-node');
 const path = require('path');
 
-if (!process.env.CI && !process.env.PUBLISH_PACT) {
+if (!process.env.CI) {
     console.log("skipping Pact publish...");
     return
 }
