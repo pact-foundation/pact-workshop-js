@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: postgres
 
-  broker_app:
+  pact-broker:
     image: pactfoundation/pact-broker
     links:
       - postgres
