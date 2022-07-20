@@ -34,10 +34,10 @@
     ]
   },
   "devDependencies": {
+    "@pact-foundation/pact": "^10.0.0-beta.61",
     "@testing-library/jest-dom": "^4.2.4",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",
-    "babel-eslint": "^10.0.3",
     "eslint": "^6.8.0",
     "eslint-config-react-app": "^5.1.0",
     "eslint-plugin-flowtype": "^3.13.0",
