@@ -239,97 +239,97 @@ In `consumer/src/api.pact.spec.js`:
 
 ```javascript
 import path from "path";
-import {Pact} from "@pact-foundation/pact";
-import {API} from "./api";
-import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
+import {
+  PactV3,
+  MatchersV3,
+  SpecificationVersion,
+} from "@pact-foundation/pact";
+import { API } from "./api";
+const { eachLike, like } = MatchersV3;
 
-const provider = new Pact({
-    consumer: 'FrontendWebsite',
-    provider: 'ProductService',
-    log: path.resolve(process.cwd(), 'logs', 'pact.log'),
-    logLevel: "warn",
-    dir: path.resolve(process.cwd(), 'pacts'),
-    spec: 2
+const provider = new PactV3({
+  consumer: "FrontendWebsite",
+  provider: "ProductService",
+  log: path.resolve(process.cwd(), "logs", "pact.log"),
+  logLevel: "warn",
+  dir: path.resolve(process.cwd(), "pacts"),
+  spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
 });
 
 describe("API Pact test", () => {
+  describe("getting all products", () => {
+    test("products exists", async () => {
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "products exist" }],
+        uponReceiving: "get all products",
+        withRequest: {
+          method: "GET",
+          path: "/products",
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: eachLike({
+            id: "09",
+            type: "CREDIT_CARD",
+            name: "Gem Visa",
+          }),
+        },
+      });
 
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-    beforeAll(() => provider.setup());
-    afterEach(() => provider.verify());
-    afterAll(() => provider.finalize());
+        // make request to Pact mock server
+        const product = await api.getAllProducts();
 
-    describe("getting all products", () => {
-        test("products exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'products exist',
-                uponReceiving: 'get all products',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products'
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: eachLike({
-                        id: "09",
-                        type: "CREDIT_CARD",
-                        name: "Gem Visa"
-                    }),
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
-            ]);
-        });
+        expect(product).toStrictEqual([
+          { id: "09", name: "Gem Visa", type: "CREDIT_CARD" },
+        ]);
+      });
     });
+  });
 
-    describe("getting one product", () => {
-        test("ID 10 exists", async () => {
+  describe("getting one product", () => {
+    test("ID 10 exists", async () => {
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "product with ID 10 exists" }],
+        uponReceiving: "get product with ID 10",
+        withRequest: {
+          method: "GET",
+          path: "/product/10",
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: like({
+            id: "10",
+            type: "CREDIT_CARD",
+            name: "28 Degrees",
+          }),
+        },
+      });
 
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 10 exists',
-                uponReceiving: 'get product with ID 10',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products/10'
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: like({
-                        id: "10",
-                        type: "CREDIT_CARD",
-                        name: "28 Degrees"
-                    }),
-                },
-            });
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-            const api = new API(provider.mockService.baseUrl);
+        // make request to Pact mock server
+        const product = await api.getProduct("10");
 
-            // make request to Pact mock server
-            const product = await api.getProduct("10");
-
-            expect(product).toStrictEqual({
-                id: "10",
-                type: "CREDIT_CARD",
-                name: "28 Degrees"
-            });
+        expect(product).toStrictEqual({
+          id: "10",
+          type: "CREDIT_CARD",
+          name: "28 Degrees",
         });
+      });
     });
+  });
 });
 ```
 
@@ -842,19 +842,7 @@ Let's see how we go now:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:25:30.775Z]  INFO: pact@9.5.0/4386: Verifying provider
-[2020-01-14T11:25:30.779Z]  INFO: pact-node@10.2.2/4386: Verifying Pacts.
-[2020-01-14T11:25:30.780Z]  INFO: pact-node@10.2.2/4386: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (669ms)
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        2.137s
-Ran all test suites.
-[2020-01-14T11:25:31.442Z]  INFO: pact-node@10.2.2/4386: Pact Verification succeeded.
 ```
 
 _NOTE_: The states are not necessarily a 1 to 1 mapping with the consumer contract tests. You can reuse states amongst different tests. In this scenario we could have used `no products exist` for both tests which would have equally been valid.
