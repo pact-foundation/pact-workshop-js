@@ -239,97 +239,93 @@ In `consumer/src/api.pact.spec.js`:
 
 ```javascript
 import path from "path";
-import {Pact} from "@pact-foundation/pact";
-import {API} from "./api";
-import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
+import { PactV3, MatchersV3, SpecificationVersion, } from "@pact-foundation/pact";
+import { API } from "./api";
+const { eachLike, like } = MatchersV3;
 
-const provider = new Pact({
-    consumer: 'FrontendWebsite',
-    provider: 'ProductService',
-    log: path.resolve(process.cwd(), 'logs', 'pact.log'),
-    logLevel: "warn",
-    dir: path.resolve(process.cwd(), 'pacts'),
-    spec: 2
+const provider = new PactV3({
+  consumer: "FrontendWebsite",
+  provider: "ProductService",
+  log: path.resolve(process.cwd(), "logs", "pact.log"),
+  logLevel: "warn",
+  dir: path.resolve(process.cwd(), "pacts"),
+  spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
 });
 
 describe("API Pact test", () => {
+  describe("getting all products", () => {
+    test("products exists", async () => {
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "products exist" }],
+        uponReceiving: "get all products",
+        withRequest: {
+          method: "GET",
+          path: "/products",
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: eachLike({
+            id: "09",
+            type: "CREDIT_CARD",
+            name: "Gem Visa",
+          }),
+        },
+      });
 
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-    beforeAll(() => provider.setup());
-    afterEach(() => provider.verify());
-    afterAll(() => provider.finalize());
+        // make request to Pact mock server
+        const product = await api.getAllProducts();
 
-    describe("getting all products", () => {
-        test("products exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'products exist',
-                uponReceiving: 'get all products',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products'
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: eachLike({
-                        id: "09",
-                        type: "CREDIT_CARD",
-                        name: "Gem Visa"
-                    }),
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
-            ]);
-        });
+        expect(product).toStrictEqual([
+          { id: "09", name: "Gem Visa", type: "CREDIT_CARD" },
+        ]);
+      });
     });
+  });
 
-    describe("getting one product", () => {
-        test("ID 10 exists", async () => {
+  describe("getting one product", () => {
+    test("ID 10 exists", async () => {
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "product with ID 10 exists" }],
+        uponReceiving: "get product with ID 10",
+        withRequest: {
+          method: "GET",
+          path: "/products/10",
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: like({
+            id: "10",
+            type: "CREDIT_CARD",
+            name: "28 Degrees",
+          }),
+        },
+      });
 
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 10 exists',
-                uponReceiving: 'get product with ID 10',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products/10'
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: like({
-                        id: "10",
-                        type: "CREDIT_CARD",
-                        name: "28 Degrees"
-                    }),
-                },
-            });
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-            const api = new API(provider.mockService.baseUrl);
+        // make request to Pact mock server
+        const product = await api.getProduct("10");
 
-            // make request to Pact mock server
-            const product = await api.getProduct("10");
-
-            expect(product).toStrictEqual({
-                id: "10",
-                type: "CREDIT_CARD",
-                name: "28 Degrees"
-            });
+        expect(product).toStrictEqual({
+          id: "10",
+          type: "CREDIT_CARD",
+          name: "28 Degrees",
         });
+      });
     });
+  });
 });
 ```
 
@@ -368,9 +364,7 @@ A pact file should have been generated in *consumer/pacts/frontendwebsite-produc
 
 ## Step 4 - Verify the provider
 
-We will need to copy the Pact contract file that was produced from the consumer test into the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract.
-
-Copy the contract located in `consumer/pacts/frontendwebsite-productservice.json` to `provider/pacts/frontendwebsite-productservice.json`.
+We need to make the pact file (the contract) that was produced from the consumer test available to the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract. For now, we'll hard code the path to where it is saved in the consumer test, in step 11 we investigate a better way of doing this.
 
 Now let's make a start on writing Pact tests to validate the consumer contract:
 
@@ -416,14 +410,9 @@ To simplify running the tests, add this to `provider/package.json`:
 We now need to validate the pact generated by the consumer is valid, by executing it against the running service provider, which should fail:
 
 ```console
-Verifying a pact between FrontendWebsite and ProductService
+❯ npm run test:pact --prefix provider
 
-  get all products
-    returns a response which
-      has status code 200 (OK)
-      includes headers
-        "Content-Type" with value "application/json; charset=utf-8" (OK)
-      has a matching body (OK)
+Verifying a pact between FrontendWebsite and ProductService
 
   get product with ID 10
     returns a response which
@@ -432,33 +421,23 @@ Verifying a pact between FrontendWebsite and ProductService
         "Content-Type" with value "application/json; charset=utf-8" (FAILED)
       has a matching body (FAILED)
 
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
 
 Failures:
 
-1) Verifying a pact between FrontendWebsite and ProductService - get product with ID 10
+1) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists - get product with ID 10
     1.1) has a matching body
            expected 'application/json;charset=utf-8' body but was 'text/html;charset=utf-8'
     1.2) has status code 200
            expected 200 but was 404
     1.3) includes header 'Content-Type' with value 'application/json; charset=utf-8'
            Expected header 'Content-Type' to have value 'application/json; charset=utf-8' but was 'text/html; charset=utf-8'
-
- FAIL  product/product.pact.test.js (13.429s)
-  Pact Verification
-    ✕ validates the expectations of ProductService (2595ms)
-
-  ● Pact Verification › validates the expectations of ProductService
-
-    Verfication failed
-
-      at node_modules/@pact-foundation/pact-core/src/verifier/nativeVerifier.ts:171:20
-
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 1 total
-Snapshots:   0 total
-Time:        19.839s
-Ran all test suites.
-[2022-07-27 06:58:46.174 +0000] ERROR (28231 on SB-AS-G7GM9F7): pact-core@13.6.2: Verification unsuccessful
 ```
 
 ![Pact Verification](diagrams/workshop_step4_pact.svg)
