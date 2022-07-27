@@ -9,14 +9,13 @@
     "test:pact": "npx jest --testTimeout=30000 --testMatch \"**/*.pact.test.js\""
   },
   "dependencies": {
-    "@pact-foundation/pact": "^10.0.0-beta.61",
     "cors": "^2.8.5",
     "express": "^4.17.1"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
     "jest": "^24.9.0",
-    "@pact-foundation/pact": "^9.6.0"
+    "@pact-foundation/pact": "^10.0.0-beta.62"
   },
   "license": "ISC"
 }
