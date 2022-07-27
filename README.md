@@ -534,23 +534,21 @@ Run the command:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T10:58:34.157Z]  INFO: pact@9.5.0/3498: Verifying provider
-[2020-01-14T10:58:34.161Z]  INFO: pact-node@10.2.2/3498: Verifying Pacts.
-[2020-01-14T10:58:34.162Z]  INFO: pact-node@10.2.2/3498: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (626ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        2.068s
-Ran all test suites.
-[2020-01-14T10:58:34.724Z]  WARN: pact@9.5.0/3498: No state handler found for "products exist", ignorning
-[2020-01-14T10:58:34.755Z]  WARN: pact@9.5.0/3498: No state handler found for "product with ID 10 exists", ignorning
-[2020-01-14T10:58:34.780Z]  INFO: pact-node@10.2.2/3498: Pact Verification succeeded.
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 ```
 
 Yay - green ✅!
