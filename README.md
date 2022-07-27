@@ -21,7 +21,6 @@ This workshop should take from 1 to 2 hours, depending on how deep you want to g
 - [step 9: **pact test**](https://github.com/pact-foundation/pact-workshop-js/tree/step9#step-9---implement-authorisation-on-the-provider): Update API to handle `401` case
 - [step 10: **request filters**](https://github.com/pact-foundation/pact-workshop-js/tree/step10#step-10---request-filters-on-the-provider): Fix the provider to support the `401` case
 - [step 11: **pact broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker): Implement a broker workflow for integration with CI/CD
-- [step 12: **pactflow broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step12#step-12---using-a-pactflow-broker): Implement a managed pactflow workflow for integration with CI/CD
 
 _NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally. For example, to move to step 2 run the following: `git checkout step2`_
 
@@ -240,97 +239,93 @@ In `consumer/src/api.pact.spec.js`:
 
 ```javascript
 import path from "path";
-import {Pact} from "@pact-foundation/pact";
-import {API} from "./api";
-import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
+import { PactV3, MatchersV3, SpecificationVersion, } from "@pact-foundation/pact";
+import { API } from "./api";
+const { eachLike, like } = MatchersV3;
 
-const provider = new Pact({
-    consumer: 'FrontendWebsite',
-    provider: 'ProductService',
-    log: path.resolve(process.cwd(), 'logs', 'pact.log'),
-    logLevel: "warn",
-    dir: path.resolve(process.cwd(), 'pacts'),
-    spec: 2
+const provider = new PactV3({
+  consumer: "FrontendWebsite",
+  provider: "ProductService",
+  log: path.resolve(process.cwd(), "logs", "pact.log"),
+  logLevel: "warn",
+  dir: path.resolve(process.cwd(), "pacts"),
+  spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
 });
 
 describe("API Pact test", () => {
+  describe("getting all products", () => {
+    test("products exists", async () => {
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "products exist" }],
+        uponReceiving: "get all products",
+        withRequest: {
+          method: "GET",
+          path: "/products",
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: eachLike({
+            id: "09",
+            type: "CREDIT_CARD",
+            name: "Gem Visa",
+          }),
+        },
+      });
 
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-    beforeAll(() => provider.setup());
-    afterEach(() => provider.verify());
-    afterAll(() => provider.finalize());
+        // make request to Pact mock server
+        const product = await api.getAllProducts();
 
-    describe("getting all products", () => {
-        test("products exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'products exist',
-                uponReceiving: 'get all products',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products'
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: eachLike({
-                        id: "09",
-                        type: "CREDIT_CARD",
-                        name: "Gem Visa"
-                    }),
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
-            ]);
-        });
+        expect(product).toStrictEqual([
+          { id: "09", name: "Gem Visa", type: "CREDIT_CARD" },
+        ]);
+      });
     });
+  });
 
-    describe("getting one product", () => {
-        test("ID 10 exists", async () => {
+  describe("getting one product", () => {
+    test("ID 10 exists", async () => {
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "product with ID 10 exists" }],
+        uponReceiving: "get product with ID 10",
+        withRequest: {
+          method: "GET",
+          path: "/products/10",
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: like({
+            id: "10",
+            type: "CREDIT_CARD",
+            name: "28 Degrees",
+          }),
+        },
+      });
 
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 10 exists',
-                uponReceiving: 'get product with ID 10',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products/10'
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: like({
-                        id: "10",
-                        type: "CREDIT_CARD",
-                        name: "28 Degrees"
-                    }),
-                },
-            });
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-            const api = new API(provider.mockService.baseUrl);
+        // make request to Pact mock server
+        const product = await api.getProduct("10");
 
-            // make request to Pact mock server
-            const product = await api.getProduct("10");
-
-            expect(product).toStrictEqual({
-                id: "10",
-                type: "CREDIT_CARD",
-                name: "28 Degrees"
-            });
+        expect(product).toStrictEqual({
+          id: "10",
+          type: "CREDIT_CARD",
+          name: "28 Degrees",
         });
+      });
     });
+  });
 });
 ```
 
@@ -343,7 +338,7 @@ To simplify running the tests, add this to `consumer/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "react-scripts test --testTimeout 30000 pact.spec.js",
+"test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
 ```
 
 Running this test still passes, but it creates a pact file which we can use to validate our assumptions on the provider side, and have conversation around.
@@ -417,124 +412,32 @@ We now need to validate the pact generated by the consumer is valid, by executin
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T06:54:12.572Z]  INFO: pact@9.5.0/12790: Verifying provider
-[2020-01-14T06:54:12.575Z]  INFO: pact-node@10.2.2/12790: Verifying Pacts.
-[2020-01-14T06:54:12.576Z]  INFO: pact-node@10.2.2/12790: Verifying Pact Files
- FAIL  product/product.pact.test.js
-  Pact Verification
-    ✕ validates the expectations of ProductService (716ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-  ● Pact Verification › validates the expectations of ProductService
+  get product with ID 10
+    returns a response which
+      has status code 200 (FAILED)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (FAILED)
+      has a matching body (FAILED)
 
-    WARN: Only the first item will be used to match the items in the array at $['body']
-
-    INFO: Reading pact at pact-workshop-js/provider/pacts/frontendwebsite-productservice.json
-
-
-    Verifying a pact between FrontendWebsite and ProductService
-      Given products exist
-        get all products
-          with GET /products
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
 
-      Given product with ID 10 exists
+Failures:
 
-        get product with ID 10
-
-
-          with GET /products/10
-            returns a response which
-
-              has status code 200 (FAILED - 1)
-
-              has a matching body (FAILED - 2)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8" (FAILED - 3)
-
-
-    Failures:
-
-      1) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /products/10 returns a response which has status code 200
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 200
-                got: 404
-
-           (compared using eql?)
-
-      2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /products/10 returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: <!DOCTYPE html>
-           <html lang="en">
-           <head>
-           <meta charset="utf-8">
-           <title>Error</title>
-           </head>
-           <body>
-           <pre>Cannot GET /products/10</pre>
-           </body>
-           </html>
-
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-           -{
-           -  "id": "10",
-           -  "type": "CREDIT_CARD",
-           -  "name": "28 Degrees"
-           -}
-           +<!DOCTYPE html>
-           +<html lang="en">
-           +<head>
-           +<meta charset="utf-8">
-           +<title>Error</title>
-           +</head>
-           +<body>
-           +<pre>Cannot GET /products/10</pre>
-           +</body>
-           +</html>
-
-
-           Description of differences
-           --------------------------------------
-           * Expected a Hash but got a String ("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot GET /products/10</pre>\n</body>\n</html>\n") at $
-
-      3) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /products/10 returns a response which includes headers "Content-Type" which equals "application/json; charset=utf-8"
-         Failure/Error: expect(header_value).to match_header(name, expected_header_value)
-           Expected header "Content-Type" to equal "application/json; charset=utf-8", but was "text/html; charset=utf-8"
-
-
-    2 interactions, 1 failure
-
-    Failed interactions:
-
-
-    * Get product with id 10 given product with ID 10 exists
-
-      at ChildProcess.<anonymous> (node_modules/@pact-foundation/pact-node/src/verifier.ts:194:58)
-
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 1 total
-Snapshots:   0 total
-Time:        2.043s
-Ran all test suites.
+1) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists - get product with ID 10
+    1.1) has a matching body
+           expected 'application/json;charset=utf-8' body but was 'text/html;charset=utf-8'
+    1.2) has status code 200
+           expected 200 but was 404
+    1.3) includes header 'Content-Type' with value 'application/json; charset=utf-8'
+           Expected header 'Content-Type' to have value 'application/json; charset=utf-8' but was 'text/html; charset=utf-8'
 ```
 
 ![Pact Verification](diagrams/workshop_step4_pact.svg)
@@ -602,28 +505,29 @@ Ran all test suites matching /pact.spec.js/i.
 ```
 
 
-Now we run the provider tests again with the updated contract, run the command:
+
+Now we run the provider tests again with the updated contract:
+
+Run the command:
 
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T10:58:34.157Z]  INFO: pact@9.5.0/3498: Verifying provider
-[2020-01-14T10:58:34.161Z]  INFO: pact-node@10.2.2/3498: Verifying Pacts.
-[2020-01-14T10:58:34.162Z]  INFO: pact-node@10.2.2/3498: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (626ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        2.068s
-Ran all test suites.
-[2020-01-14T10:58:34.724Z]  WARN: pact@9.5.0/3498: No state handler found for "products exist", ignorning
-[2020-01-14T10:58:34.755Z]  WARN: pact@9.5.0/3498: No state handler found for "product with ID 10 exists", ignorning
-[2020-01-14T10:58:34.780Z]  INFO: pact-node@10.2.2/3498: Pact Verification succeeded.
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 ```
 
 Yay - green ✅!
@@ -687,10 +591,14 @@ test("product does not exist", async () => {
     },
   });
 
-  const api = new API(provider.mockService.baseUrl);
+  await provider.executeTest(async (mockService) => {
+    const api = new API(mockService.url);
 
-  // make request to Pact mock server
-  await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
+    // make request to Pact mock server
+    await expect(api.getProduct("11")).rejects.toThrow(
+    "Request failed with status code 404"
+    );
+  });
 });
 ```
 
@@ -721,149 +629,43 @@ What does our provider have to say about this new test:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:11:51.390Z]  INFO: pact@9.5.0/3894: Verifying provider
-[2020-01-14T11:11:51.394Z]  INFO: pact-node@10.2.2/3894: Verifying Pacts.
-[2020-01-14T11:11:51.395Z]  INFO: pact-node@10.2.2/3894: Verifying Pact Files
-[2020-01-14T11:11:51.941Z]  WARN: pact@9.5.0/3894: No state handler found for "products exist", ignorning
-[2020-01-14T11:11:51.972Z]  WARN: pact@9.5.0/3894: No state handler found for "no products exist", ignorning
-[2020-01-14T11:11:51.982Z]  WARN: pact@9.5.0/3894: No state handler found for "product with ID 10 exists", ignorning
-[2020-01-14T11:11:51.989Z]  WARN: pact@9.5.0/3894: No state handler found for "product with ID 11 does not exist", ignorning
- FAIL  product/product.pact.test.js
-  Pact Verification
-    ✕ validates the expectations of ProductService (669ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-  ● Pact Verification › validates the expectations of ProductService
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (FAILED)
 
-    WARN: Only the first item will be used to match the items in the array at $['body']
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-    INFO: Reading pact at pact-workshop-js/provider/pacts/frontendwebsite-productservice.json
+  get product with ID 11
+    returns a response which
+      has status code 404 (FAILED)
+      has a matching body (OK)
 
-    Verifying a pact between FrontendWebsite and ProductService
-
-      Given products exist
-        get all products
-          with GET /products
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given no products exist
-
-        get all products
-
-          with GET /products
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body (FAILED - 1)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 10 exists
-
-        get product with ID 10
-
-          with GET /product/10
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 11 does not exist
-
-        get product with ID 11
-
-          with GET /product/11
-
-            returns a response which
-
-              has status code 404 (FAILED - 2)
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
 
-    Failures:
+Failures:
 
-      1) Verifying a pact between FrontendWebsite and ProductService Given no products exist get all products with GET /products returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: [{"id":"09","type":"CREDIT_CARD","name":"Gem Visa","version":"v1"},{"id":"10","type":"CREDIT_CARD","name":"28 Degrees","version":"v1"},{"id":"11","type":"PERSONAL_LOAN","name":"MyFlexiPay","version":"v2"}]
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-           -[,
-           -
-           +[
-           +  {
-           +    "id": "09",
-           +    "type": "CREDIT_CARD",
-           +    "name": "Gem Visa",
-           +    "version": "v1"
-           +  },
-           +  {
-           +    "id": "10",
-           +    "type": "CREDIT_CARD",
-           +    "name": "28 Degrees",
-           +    "version": "v1"
-           +  },
-           +  {
-           +    "id": "11",
-           +    "type": "PERSONAL_LOAN",
-           +    "name": "MyFlexiPay",
-           +    "version": "v2"
-           +  },
-            ]
-
-           Description of differences
-           --------------------------------------
-           * Actual array is too long and should not contain a Hash at $[0]
-           * Actual array is too long and should not contain a Hash at $[1]
-           * Actual array is too long and should not contain a Hash at $[2]
-
-      2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 11 does not exist get product with ID 11 with GET /product/11 returns a response which has status code 404
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 404
-                got: 200
-
-           (compared using eql?)
-
-
-    4 interactions, 2 failures
-
-    Failed interactions:
-
-    * Get all products given no products exist
-
-    * Get product with id 11 given product with ID 11 does not exist
-
-      at ChildProcess.<anonymous> (node_modules/@pact-foundation/pact-node/src/verifier.ts:194:58)
-
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 1 total
-Snapshots:   0 total
-Time:        2.044s
-Ran all test suites.
-[2020-01-14T11:11:52.052Z]  WARN: pact-node@10.2.2/3894: Pact exited with code 1.
-npm ERR! Test failed.  See above for more details.
+1) Verifying a pact between FrontendWebsite and ProductService Given no products exist - get all products
+    1.1) has a matching body
+           $ -> Expected an empty List but received [{"id":"09","name":"Gem Visa","type":"CREDIT_CARD","version":"v1"},{"id":"10","name":"28 Degrees","type":"CREDIT_CARD","version":"v1"},{"id":"11","name":"MyFlexiPay","type":"PERSONAL_LOAN","version":"v2"}]
+2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 11 does not exist - get product with ID 11
+    2.1) has status code 404
+           expected 404 but was 200
 ```
 
 We expected this failure, because the product we are requesing does in fact exist! What we want to test for, is what happens if there is a different *state* on the Provider. This is what is referred to as "Provider states", and how Pact gets around test ordering and related issues.
@@ -917,19 +719,33 @@ Let's see how we go now:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:25:30.775Z]  INFO: pact@9.5.0/4386: Verifying provider
-[2020-01-14T11:25:30.779Z]  INFO: pact-node@10.2.2/4386: Verifying Pacts.
-[2020-01-14T11:25:30.780Z]  INFO: pact-node@10.2.2/4386: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (669ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        2.137s
-Ran all test suites.
-[2020-01-14T11:25:31.442Z]  INFO: pact-node@10.2.2/4386: Pact Verification succeeded.
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
+  get product with ID 11
+    returns a response which
+      has status code 404 (OK)
+      has a matching body (OK)
+
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 ```
 
 _NOTE_: The states are not necessarily a 1 to 1 mapping with the consumer contract tests. You can reuse states amongst different tests. In this scenario we could have used `no products exist` for both tests which would have equally been valid.
@@ -968,204 +784,57 @@ In `consumer/src/api.js`:
     }
 ```
 
-In `consumer/src/api.pact.spec.js`:
+In `consumer/src/api.pact.spec.js` we add authentication headers to the request setup for the existing tests:
 
-```javascript
-import path from "path";
-import {Pact} from "@pact-foundation/pact";
-import {API} from "./api";
-import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
+```js
+      await provider.addInteraction({
+        states: [{ description: "no products exist" }],
+        uponReceiving: "get all products",
+        withRequest: {
+          method: "GET",
+          path: "/products",
+          headers: {
+            Authorization: like("Bearer 2019-01-14T11:34:18.045Z"),
+          },
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: [],
+        },
+      });
+```
 
-const provider = new Pact({
-    consumer: 'FrontendWebsite',
-    provider: 'ProductService',
-    log: path.resolve(process.cwd(), 'logs', 'pact.log'),
-    logLevel: "warn",
-    dir: path.resolve(process.cwd(), 'pacts'),
-    spec: 2
-});
+and we also add two new tests for the "no auth token" use case:
 
-describe("API Pact test", () => {
+```js
+    // ...
+    test("no auth token", async () => {
 
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "product with ID 10 exists" }],
+        uponReceiving: "get product by ID 10 with no auth token",
+        withRequest: {
+          method: "GET",
+          path: "/product/10",
+        },
+        willRespondWith: {
+          status: 401,
+        },
+      });
 
-    beforeAll(() => provider.setup());
-    afterEach(() => provider.verify());
-    afterAll(() => provider.finalize());
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-    describe("getting all products", () => {
-        test("products exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'products exist',
-                uponReceiving: 'get all products',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products',
-                    headers: {
-                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
-                    }
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: eachLike({
-                        id: "09",
-                        type: "CREDIT_CARD",
-                        name: "Gem Visa"
-                    }),
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
-            ]);
-        });
-
-        test("no products exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'no products exist',
-                uponReceiving: 'get all products',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products',
-                    headers: {
-                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
-                    }
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: []
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([]);
-        });
-
-        test("no auth token", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'products exist',
-                uponReceiving: 'get all products with no auth token',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products'
-                },
-                willRespondWith: {
-                    status: 401
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            await expect(api.getAllProducts()).rejects.toThrow("Request failed with status code 401");
-        });
+        // make request to Pact mock server
+        await expect(api.getProduct("10")).rejects.toThrow(
+          "Request failed with status code 401"
+        );
+      });
     });
-
-    describe("getting one product", () => {
-        test("ID 10 exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 10 exists',
-                uponReceiving: 'get product with ID 10',
-                withRequest: {
-                    method: 'GET',
-                    path: '/product/10',
-                    headers: {
-                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
-                    }
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: like({
-                        id: "10",
-                        type: "CREDIT_CARD",
-                        name: "28 Degrees"
-                    }),
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getProduct("10");
-
-            expect(product).toStrictEqual({
-                id: "10",
-                type: "CREDIT_CARD",
-                name: "28 Degrees"
-            });
-        });
-
-        test("product does not exist", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 11 does not exist',
-                uponReceiving: 'get product with ID 11',
-                withRequest: {
-                    method: 'GET',
-                    path: '/product/11',
-                    headers: {
-                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
-                    }
-                },
-                willRespondWith: {
-                    status: 404
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
-        });
-
-        test("no auth token", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 10 exists',
-                uponReceiving: 'get product by ID 10 with no auth token',
-                withRequest: {
-                    method: 'GET',
-                    path: '/product/10'
-                },
-                willRespondWith: {
-                    status: 401
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            await expect(api.getProduct("10")).rejects.toThrow("Request failed with status code 401");
-        });
-    });
-});
 ```
 
 Generate a new Pact file:
@@ -1198,129 +867,46 @@ Let's test the provider:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:42:56.479Z]  INFO: pact@9.5.0/5247: Verifying provider
-[2020-01-14T11:42:56.483Z]  INFO: pact-node@10.2.2/5247: Verifying Pacts.
-[2020-01-14T11:42:56.484Z]  INFO: pact-node@10.2.2/5247: Verifying Pact Files
- FAIL  product/product.pact.test.js
-  Pact Verification
-    ✕ validates the expectations of ProductService (667ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-  ● Pact Verification › validates the expectations of ProductService
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-    WARN: Only the first item will be used to match the items in the array at $['body']
+  get product by ID 10 with no auth token
+    returns a response which
+      has status code 401 (FAILED)
+      has a matching body (OK)
 
-    INFO: Reading pact at pact-workshop-js/provider/pacts/frontendwebsite-productservice.json
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-    Verifying a pact between FrontendWebsite and ProductService
+  get product with ID 11
+    returns a response which
+      has status code 404 (OK)
+      has a matching body (OK)
 
-      Given products exist
-        get all products
-          with GET /products
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given no products exist
-
-        get all products
-
-          with GET /products
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given products exist
-
-        get all products with no auth token
-
-          with GET /products
-
-            returns a response which
-
-              has status code 401 (FAILED - 1)
-      Given product with ID 10 exists
-        get product with ID 10
-          with GET /product/10
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 11 does not exist
-
-        get product with ID 11
-
-          with GET /product/11
-
-            returns a response which
-
-              has status code 404
-
-      Given product with ID 10 exists
-
-        get product by ID 10 with no auth token
-
-          with GET /product/10
-
-            returns a response which
-
-              has status code 401 (FAILED - 2)
+  get all products
+    returns a response which
+      has status code 401 (FAILED)
+      has a matching body (OK)
 
 
-    Failures:
+Failures:
 
-      1) Verifying a pact between FrontendWebsite and ProductService Given products exist get all products with no auth token with GET /products returns a response which has status code 401
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 401
-                got: 200
-
-           (compared using eql?)
-
-      2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product by ID 10 with no auth token with GET /product/10 returns a response which has status code 401
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 401
-                got: 200
-
-           (compared using eql?)
-
-
-    6 interactions, 2 failures
-
-    Failed interactions:
-
-    * Get all products with no auth token given products exist
-
-    * Get product by id 10 with no auth token given product with ID 10 exists
-
-      at ChildProcess.<anonymous> (node_modules/@pact-foundation/pact-node/src/verifier.ts:194:58)
-
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 1 total
-Snapshots:   0 total
-Time:        2.046s
-Ran all test suites.
-[2020-01-14T11:42:57.139Z]  WARN: pact-node@10.2.2/5247: Pact exited with code 1.
-npm ERR! Test failed.  See above for more details.
+1) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists - get product by ID 10 with no auth token
+    1.1) has status code 401
+           expected 401 but was 200
+2) Verifying a pact between FrontendWebsite and ProductService Given products exist - get all products
+    2.1) has status code 401
+           expected 401 but was 200
 ```
 
 Now with the most recently added interactions where we are expecting a response of 401 when no authorization header is sent, we are getting 200...
@@ -1383,231 +969,55 @@ Let's test this out:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:49:31.048Z]  INFO: pact@9.5.0/5759: Verifying provider
-[2020-01-14T11:49:31.051Z]  INFO: pact-node@10.2.2/5759: Verifying Pacts.
-[2020-01-14T11:49:31.052Z]  INFO: pact-node@10.2.2/5759: Verifying Pact Files
- FAIL  product/product.pact.test.js
-  Pact Verification
-    ✕ validates the expectations of ProductService (679ms)
-
-  ● Pact Verification › validates the expectations of ProductService
-
-    WARN: Only the first item will be used to match the items in the array at $['body']
-
-    INFO: Reading pact at pact-workshop-js/provider/pacts/frontendwebsite-productservice.json
-
-    Verifying a pact between FrontendWebsite and ProductService
-
-      Given products exist
-        get all products
-          with GET /products
-            returns a response which
-
-              has status code 200 (FAILED - 1)
-
-              has a matching body (FAILED - 2)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given no products exist
-
-        get all products
-
-          with GET /products
-
-            returns a response which
-
-              has status code 200 (FAILED - 3)
-
-              has a matching body (FAILED - 4)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given products exist
-
-        get all products with no auth token
-
-          with GET /products
-
-            returns a response which
-
-
-              has status code 401
-
-      Given product with ID 10 exists
-
-        get product with ID 10
-
-          with GET /product/10
-
-            returns a response which
-
-              has status code 200 (FAILED - 5)
-
-              has a matching body (FAILED - 6)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 11 does not exist
-
-        get product with ID 11
-
-          with GET /product/11
-
-            returns a response which
-
-              has status code 404 (FAILED - 7)
-
-      Given product with ID 10 exists
-
-        get product by ID 10 with no auth token
-
-          with GET /product/10
-
-            returns a response which
-
-              has status code 401
-
-
-    Failures:
-
-      1) Verifying a pact between FrontendWebsite and ProductService Given products exist get all products with GET /products returns a response which has status code 200
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 200
-                got: 401
-
-           (compared using eql?)
-
-      2) Verifying a pact between FrontendWebsite and ProductService Given products exist get all products with GET /products returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: {"error":"Unauthorized"}
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-           -[
-           -  {
-           -    "id": "09",
-           -    "type": "CREDIT_CARD",
-           -    "name": "Gem Visa"
-           -  },
-           -  {
-           -    "id": "09",
-           -    "type": "CREDIT_CARD",
-           -    "name": "Gem Visa"
-           -  },
-           -]
-           +{
-           +  "error": "Unauthorized"
-           +}
-
-
-           Description of differences
-           --------------------------------------
-           * Expected an Array (like [{"id"=>"09", "type"=>"CREDIT_CARD", "name"=>"Gem Visa"}, {"id"=>"09", "type"=>"CREDIT_CARD", "name"=>"Gem Visa"}]) but got a Hash at $
-
-      3) Verifying a pact between FrontendWebsite and ProductService Given no products exist get all products with GET /products returns a response which has status code 200
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 200
-                got: 401
-
-           (compared using eql?)
-
-      4) Verifying a pact between FrontendWebsite and ProductService Given no products exist get all products with GET /products returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: {"error":"Unauthorized"}
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-           -[,
-           -
-           -]
-           +{
-           +  "error": "Unauthorized"
-           +}
-
-
-           Description of differences
-           --------------------------------------
-           * Expected an Array but got a Hash at $
-
-      5) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /product/10 returns a response which has status code 200
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 200
-                got: 401
-
-           (compared using eql?)
-
-      6) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /product/10 returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: {"error":"Unauthorized"}
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-            {
-           -  "id": String,
-           -  "type": String,
-           -  "name": String
-            }
-
-           Description of differences
-           --------------------------------------
-           * Could not find key "id" (keys present are: error) at $
-           * Could not find key "type" (keys present are: error) at $
-           * Could not find key "name" (keys present are: error) at $
-
-      7) Verifying a pact between FrontendWebsite and ProductService Given product with ID 11 does not exist get product with ID 11 with GET /product/11 returns a response which has status code 404
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 404
-                got: 401
-
-           (compared using eql?)
-
-
-    6 interactions, 4 failures
-
-    Failed interactions:
-
-
-    * Get all products given products exist
-
-    * Get all products given no products exist
-    * Get product with id 10 given product with ID 10 exists
-    * Get product with id 11 given product with ID 11 does not exist
-
-      at ChildProcess.<anonymous> (node_modules/@pact-foundation/pact-node/src/verifier.ts:194:58)
-
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 1 total
-Snapshots:   0 total
-Time:        1.988s, estimated 2s
-Ran all test suites.
-[2020-01-14T11:49:31.719Z]  WARN: pact-node@10.2.2/5759: Pact exited with code 1.
-npm ERR! Test failed.  See above for more details.
+Verifying a pact between FrontendWebsite and ProductService
+
+  get all products
+    returns a response which
+      has status code 200 (FAILED)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (FAILED)
+
+  get product by ID 10 with no auth token
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
+
+  get product with ID 10
+    returns a response which
+      has status code 200 (FAILED)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (FAILED)
+
+  get product with ID 11
+    returns a response which
+      has status code 404 (FAILED)
+      has a matching body (OK)
+
+  get all products
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
+
+
+Failures:
+
+1) Verifying a pact between FrontendWebsite and ProductService Given no products exist - get all products
+    1.1) has a matching body
+           $ -> Type mismatch: Expected List [] but received Map {"error":"Unauthorized"}
+    1.2) has status code 200
+           expected 200 but was 401
+2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists - get product with ID 10
+    2.1) has a matching body
+           $ -> Actual map is missing the following keys: id, name, type
+    2.2) has status code 200
+           expected 200 but was 401
+3) Verifying a pact between FrontendWebsite and ProductService Given product with ID 11 does not exist - get product with ID 11
+    3.1) has status code 404
+           expected 404 but was 401
+
+There were 3 pact failures
 ```
 
 Oh, dear. _More_ tests are failing. Can you understand why?
@@ -1646,19 +1056,7 @@ We can now run the Provider tests
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:58:57.933Z]  INFO: pact@9.5.0/6636: Verifying provider
-[2020-01-14T11:58:57.937Z]  INFO: pact-node@10.2.2/6636: Verifying Pacts.
-[2020-01-14T11:58:57.938Z]  INFO: pact-node@10.2.2/6636: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (626ms)
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        2.094s
-Ran all test suites.
-[2020-01-14T11:58:58.557Z]  INFO: pact-node@10.2.2/6636: Pact Verification succeeded.
 ```
 
 *Move on to [step 11](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker)*
@@ -1683,56 +1081,11 @@ docker-compose up
 
 ### Publish contracts from consumer
 
-First, in the consumer project we need to tell Pact about our broker.
-
-In `consumer/publish.pact.js`:
-
-```groovy
-const pact = require('@pact-foundation/pact-node');
-const path = require('path');
-
-if (!process.env.CI && !process.env.PUBLISH_PACT) {
-    console.log("skipping Pact publish...");
-    return
-}
-
-let pactBrokerUrl = process.env.PACT_BROKER_BASE_URL || 'http://localhost:8000';
-let pactBrokerUsername = process.env.PACT_BROKER_USERNAME || 'pact_workshop';
-let pactBrokerPassword = process.env.PACT_BROKER_PASSWORD || 'pact_workshop';
-
-const gitHash = require('child_process')
-    .execSync('git rev-parse --short HEAD')
-    .toString().trim();
-
-const opts = {
-    pactFilesOrDirs: [path.resolve(__dirname, './pacts/')],
-    pactBroker: pactBrokerUrl,
-    pactBrokerUsername: pactBrokerUsername,
-    pactBrokerPassword: pactBrokerPassword,
-    tags: ['prod', 'test'],
-    consumerVersion: gitHash
-};
-
-pact
-    .publishPacts(opts)
-    .then(() => {
-        console.log('Pact contract publishing complete!');
-        console.log('');
-        console.log(`Head over to ${pactBrokerUrl} and login with`);
-        console.log(`=> Username: ${pactBrokerUsername}`);
-        console.log(`=> Password: ${pactBrokerPassword}`);
-        console.log('to see your published contracts.')
-    })
-    .catch(e => {
-        console.log('Pact contract publishing failed: ', e)
-    });
-```
-
-Now add this to `consumer/package.json`:
+First, in the consumer project we need to tell Pact about our broker. We can use the in built `pact-broker` CLI command to do this:
 
 ```javascript
 // add this under scripts
-"posttest:pact": "node publish.pact.js",
+"pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx @pact-foundation/absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
 ```
 
 Now run
@@ -1756,26 +1109,23 @@ Tests:       6 passed, 6 total
 Snapshots:   0 total
 Time:        2.653s
 Ran all test suites matching /pact.spec.js/i.
-
-[2020-01-14T12:27:49.592Z]  INFO: pact-node@10.2.4/10405: Publishing Pacts to Broker
-[2020-01-14T12:27:49.593Z]  INFO: pact-node@10.2.4/10405: Publishing pacts to broker at: http://localhost:8000
-[2020-01-14T12:27:50.164Z]  INFO: pact-node@10.2.4/10405:
-
-    Tagging version fe0b6a3 of FrontendWebsite as "prod"
-    Tagging version fe0b6a3 of FrontendWebsite as "test"
-    Publishing FrontendWebsite/ProductService pact to pact broker at http://localhost:8000
-    The given version of pact is already published. Overwriting...
-    The latest version of this pact can be accessed at the following URL (use this to configure the provider verification):
-    http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/latest
-
-
-Pact contract publishing complete!
-
-Head over to http://localhost:8000 and login with
-=> Username: pact_workshop
-=> Password: pact_workshop
-to see your published contracts.
 ```
+
+To publish the pacts:
+
+
+```
+❯ npm run pact:publish --prefix consumer
+
+Created FrontendWebsite version 24c0e1-step11+24c0e1.SNAPSHOT.SB-AS-G7GM9F7 with branch step11
+Pact successfully published for FrontendWebsite version 24c0e1-step11+24c0e1.SNAPSHOT.SB-AS-G7GM9F7 and provider ProductService.
+  View the published pact at http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/24c0e1-step11%2B24c0e1.SNAPSHOT.SB-AS-G7GM9F7
+  Events detected: contract_published (pact content is the same as previous versions with tags  and no new tags were applied)
+  Next steps:
+    * Configure separate ProductService pact verification build and webhook to trigger it when the pact content changes. See https://docs.pact.io/go/webhooks
+```
+
+*NOTE: you would usually only publish pacts from CI. *
 
 Have a browse around the broker on http://localhost:8000 (with username/password: `pact_workshop`/`pact_workshop`) and see your newly published contract!
 
@@ -1798,35 +1148,48 @@ pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 ```
 
 ```javascript
-// add
-if (process.env.CI || process.env.PACT_BROKER_PUBLISH_VERIFICATION_RESULTS) {
-  Object.assign(opts, {
-    publishVerificationResult: true,
-  });
-}
-
-// before
-return new Verifier(opts).verifyProvider().finally(() => {
+// add to the opts {...}
+publishVerificationResult: process.env.CI || process.env.PACT_BROKER_PUBLISH_VERIFICATION_RESULTS
 ```
 
-Let's run the provider verification one last time after this change:
+Let's run the provider verification one last time after this change. It should print a few notices showing which pact(s) it has found from the broker, and why they were selected:
 
 ```console
 ❯ PACT_BROKER_PUBLISH_VERIFICATION_RESULTS=true npm run test:pact --prefix provider
 
-[2020-01-14T12:34:08.157Z]  INFO: pact@9.5.0/10742: Verifying provider
-[2020-01-14T12:34:08.161Z]  INFO: pact-node@10.2.2/10742: Verifying Pacts.
-[2020-01-14T12:34:08.161Z]  INFO: pact-node@10.2.2/10742: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (682ms)
+The pact at http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/80d8e7379fc7d5cfe503665ec1776bfb139aa8cf is being verified because the pact content belongs to the consumer version matching the following criterion:
+    * latest version of FrontendWebsite that has a pact with ProductService (9cd950-step10+9cd950.SNAPSHOT.SB-AS-G7GM9F7)
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        1.99s, estimated 2s
-Ran all test suites.
-[2020-01-14T12:34:08.837Z]  INFO: pact-node@10.2.2/10742: Pact Verification succeeded.
+Verifying a pact between FrontendWebsite and ProductService
+
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
+  get product by ID 10 with no auth token
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
+
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
+  get product with ID 11
+    returns a response which
+      has status code 404 (OK)
+      has a matching body (OK)
+
+  get all products
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
 ```
 
 As part of this process, the results of the verification - the outcome (boolean) and the detailed information about the failures at the interaction level - are published to the Broker also.
