@@ -24,7 +24,7 @@ describe("API Pact test", () => {
 
             // set up Pact interactions
             await provider.addInteraction({
-                state: 'products exist',
+                states: [{description: 'products exist'}],
                 uponReceiving: 'get all products',
                 withRequest: {
                     method: 'GET',
@@ -60,7 +60,7 @@ describe("API Pact test", () => {
 
             // set up Pact interactions
             await provider.addInteraction({
-                state: 'no products exist',
+                states: [{description: 'no products exist'}],
                 uponReceiving: 'get all products',
                 withRequest: {
                     method: 'GET',
@@ -113,7 +113,7 @@ describe("API Pact test", () => {
 
             // set up Pact interactions
             await provider.addInteraction({
-                state: 'product with ID 10 exists',
+                states: [{description: 'product with ID 10 exists'}],
                 uponReceiving: 'get product with ID 10',
                 withRequest: {
                     method: 'GET',
@@ -151,7 +151,7 @@ describe("API Pact test", () => {
 
             // set up Pact interactions
             await provider.addInteraction({
-                state: 'product with ID 11 does not exist',
+                states: [{description: 'product with ID 11 does not exist'}],
                 uponReceiving: 'get product with ID 11',
                 withRequest: {
                     method: 'GET',

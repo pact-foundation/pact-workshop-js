@@ -907,19 +907,33 @@ Let's see how we go now:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:25:30.775Z]  INFO: pact@9.5.0/4386: Verifying provider
-[2020-01-14T11:25:30.779Z]  INFO: pact-node@10.2.2/4386: Verifying Pacts.
-[2020-01-14T11:25:30.780Z]  INFO: pact-node@10.2.2/4386: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (669ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        2.137s
-Ran all test suites.
-[2020-01-14T11:25:31.442Z]  INFO: pact-node@10.2.2/4386: Pact Verification succeeded.
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
+  get product with ID 11
+    returns a response which
+      has status code 404 (OK)
+      has a matching body (OK)
+
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 ```
 
 _NOTE_: The states are not necessarily a 1 to 1 mapping with the consumer contract tests. You can reuse states amongst different tests. In this scenario we could have used `no products exist` for both tests which would have equally been valid.
