@@ -1202,129 +1202,46 @@ Let's test the provider:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:42:56.479Z]  INFO: pact@9.5.0/5247: Verifying provider
-[2020-01-14T11:42:56.483Z]  INFO: pact-node@10.2.2/5247: Verifying Pacts.
-[2020-01-14T11:42:56.484Z]  INFO: pact-node@10.2.2/5247: Verifying Pact Files
- FAIL  product/product.pact.test.js
-  Pact Verification
-    ✕ validates the expectations of ProductService (667ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-  ● Pact Verification › validates the expectations of ProductService
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-    WARN: Only the first item will be used to match the items in the array at $['body']
+  get product by ID 10 with no auth token
+    returns a response which
+      has status code 401 (FAILED)
+      has a matching body (OK)
 
-    INFO: Reading pact at pact-workshop-js/provider/pacts/frontendwebsite-productservice.json
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-    Verifying a pact between FrontendWebsite and ProductService
+  get product with ID 11
+    returns a response which
+      has status code 404 (OK)
+      has a matching body (OK)
 
-      Given products exist
-        get all products
-          with GET /products
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given no products exist
-
-        get all products
-
-          with GET /products
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given products exist
-
-        get all products with no auth token
-
-          with GET /products
-
-            returns a response which
-
-              has status code 401 (FAILED - 1)
-      Given product with ID 10 exists
-        get product with ID 10
-          with GET /product/10
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 11 does not exist
-
-        get product with ID 11
-
-          with GET /product/11
-
-            returns a response which
-
-              has status code 404
-
-      Given product with ID 10 exists
-
-        get product by ID 10 with no auth token
-
-          with GET /product/10
-
-            returns a response which
-
-              has status code 401 (FAILED - 2)
+  get all products
+    returns a response which
+      has status code 401 (FAILED)
+      has a matching body (OK)
 
 
-    Failures:
+Failures:
 
-      1) Verifying a pact between FrontendWebsite and ProductService Given products exist get all products with no auth token with GET /products returns a response which has status code 401
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 401
-                got: 200
-
-           (compared using eql?)
-
-      2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product by ID 10 with no auth token with GET /product/10 returns a response which has status code 401
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 401
-                got: 200
-
-           (compared using eql?)
-
-
-    6 interactions, 2 failures
-
-    Failed interactions:
-
-    * Get all products with no auth token given products exist
-
-    * Get product by id 10 with no auth token given product with ID 10 exists
-
-      at ChildProcess.<anonymous> (node_modules/@pact-foundation/pact-node/src/verifier.ts:194:58)
-
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 1 total
-Snapshots:   0 total
-Time:        2.046s
-Ran all test suites.
-[2020-01-14T11:42:57.139Z]  WARN: pact-node@10.2.2/5247: Pact exited with code 1.
-npm ERR! Test failed.  See above for more details.
+1) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists - get product by ID 10 with no auth token
+    1.1) has status code 401
+           expected 401 but was 200
+2) Verifying a pact between FrontendWebsite and ProductService Given products exist - get all products
+    2.1) has status code 401
+           expected 401 but was 200
 ```
 
 Now with the most recently added interactions where we are expecting a response of 401 when no authorization header is sent, we are getting 200...
