@@ -664,15 +664,24 @@ Verifying a pact between FrontendWebsite and ProductService
       has status code 404 (FAILED)
       has a matching body (OK)
 
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
 
 Failures:
 
-1) Verifying a pact between FrontendWebsite and ProductService - get all products
+1) Verifying a pact between FrontendWebsite and ProductService Given no products exist - get all products
     1.1) has a matching body
            $ -> Expected an empty List but received [{"id":"09","name":"Gem Visa","type":"CREDIT_CARD","version":"v1"},{"id":"10","name":"28 Degrees","type":"CREDIT_CARD","version":"v1"},{"id":"11","name":"MyFlexiPay","type":"PERSONAL_LOAN","version":"v2"}]
-2) Verifying a pact between FrontendWebsite and ProductService - get product with ID 11
+2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 11 does not exist - get product with ID 11
     2.1) has status code 404
            expected 404 but was 200
+
+There were 2 pact failures
 ```
 
 We expected this failure, because the product we are requesing does in fact exist! What we want to test for, is what happens if there is a different *state* on the Provider. This is what is referred to as "Provider states", and how Pact gets around test ordering and related issues.
