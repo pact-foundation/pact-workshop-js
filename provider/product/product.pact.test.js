@@ -38,15 +38,7 @@ describe("Pact Verification", () => {
                 "product with ID 11 does not exist": () => {
                     controller.repository.products = new Map();
                 },
-            },
-            requestFilter: (req, res, next) => {
-                if (!req.headers["authorization"]) {
-                    next();
-                    return;
-                }
-                req.headers["authorization"] = `Bearer ${new Date().toISOString()}`;
-                next();
-            },
+            }
         };
 
         return new Verifier(opts).verifyProvider().then(output => {
