@@ -1,24 +1,18 @@
 import path from "path";
-import {Pact} from "@pact-foundation/pact";
+import {PactV3, MatchersV3, SpecificationVersion} from "@pact-foundation/pact";
 import {API} from "./api";
-import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
+const {eachLike, like} = MatchersV3;
 
-const provider = new Pact({
+const provider = new PactV3({
     consumer: 'FrontendWebsite',
     provider: 'ProductService',
     log: path.resolve(process.cwd(), 'logs', 'pact.log'),
     logLevel: "warn",
     dir: path.resolve(process.cwd(), 'pacts'),
-    spec: 2
+    spec: SpecificationVersion.SPECIFICATION_VERSION_V2
 });
 
 describe("API Pact test", () => {
-
-
-    beforeAll(() => provider.setup());
-    afterEach(() => provider.verify());
-    afterAll(() => provider.finalize());
-
     describe("getting all products", () => {
         test("products exists", async () => {
 
@@ -43,14 +37,17 @@ describe("API Pact test", () => {
                 },
             });
 
-            const api = new API(provider.mockService.baseUrl);
+            await provider.executeTest(async (mockService) => {
+                const api = new API(mockService.url);
+    
+                // make request to Pact mock server
+                const product = await api.getAllProducts();
+    
+                expect(product).toStrictEqual([
+                    {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
+                ]);
 
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
-            ]);
+            })
         });
     });
 
@@ -78,16 +75,19 @@ describe("API Pact test", () => {
                 },
             });
 
-            const api = new API(provider.mockService.baseUrl);
+            await provider.executeTest(async (mockService) => {
+                const api = new API(mockService.url);
+    
+                // make request to Pact mock server
+                const product = await api.getProduct("10");
+    
+                expect(product).toStrictEqual({
+                    id: "10",
+                    type: "CREDIT_CARD",
+                    name: "28 Degrees"
+                });
 
-            // make request to Pact mock server
-            const product = await api.getProduct("10");
-
-            expect(product).toStrictEqual({
-                id: "10",
-                type: "CREDIT_CARD",
-                name: "28 Degrees"
-            });
+            })
         });
     });
 });
