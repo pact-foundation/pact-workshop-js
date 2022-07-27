@@ -1304,231 +1304,55 @@ Let's test this out:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:49:31.048Z]  INFO: pact@9.5.0/5759: Verifying provider
-[2020-01-14T11:49:31.051Z]  INFO: pact-node@10.2.2/5759: Verifying Pacts.
-[2020-01-14T11:49:31.052Z]  INFO: pact-node@10.2.2/5759: Verifying Pact Files
- FAIL  product/product.pact.test.js
-  Pact Verification
-    ✕ validates the expectations of ProductService (679ms)
-
-  ● Pact Verification › validates the expectations of ProductService
-
-    WARN: Only the first item will be used to match the items in the array at $['body']
-
-    INFO: Reading pact at pact-workshop-js/provider/pacts/frontendwebsite-productservice.json
-
-    Verifying a pact between FrontendWebsite and ProductService
-
-      Given products exist
-        get all products
-          with GET /products
-            returns a response which
-
-              has status code 200 (FAILED - 1)
-
-              has a matching body (FAILED - 2)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given no products exist
-
-        get all products
-
-          with GET /products
-
-            returns a response which
-
-              has status code 200 (FAILED - 3)
-
-              has a matching body (FAILED - 4)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given products exist
-
-        get all products with no auth token
-
-          with GET /products
-
-            returns a response which
-
-
-              has status code 401
-
-      Given product with ID 10 exists
-
-        get product with ID 10
-
-          with GET /product/10
-
-            returns a response which
-
-              has status code 200 (FAILED - 5)
-
-              has a matching body (FAILED - 6)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 11 does not exist
-
-        get product with ID 11
-
-          with GET /product/11
-
-            returns a response which
-
-              has status code 404 (FAILED - 7)
-
-      Given product with ID 10 exists
-
-        get product by ID 10 with no auth token
-
-          with GET /product/10
-
-            returns a response which
-
-              has status code 401
-
-
-    Failures:
-
-      1) Verifying a pact between FrontendWebsite and ProductService Given products exist get all products with GET /products returns a response which has status code 200
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 200
-                got: 401
-
-           (compared using eql?)
-
-      2) Verifying a pact between FrontendWebsite and ProductService Given products exist get all products with GET /products returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: {"error":"Unauthorized"}
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-           -[
-           -  {
-           -    "id": "09",
-           -    "type": "CREDIT_CARD",
-           -    "name": "Gem Visa"
-           -  },
-           -  {
-           -    "id": "09",
-           -    "type": "CREDIT_CARD",
-           -    "name": "Gem Visa"
-           -  },
-           -]
-           +{
-           +  "error": "Unauthorized"
-           +}
-
-
-           Description of differences
-           --------------------------------------
-           * Expected an Array (like [{"id"=>"09", "type"=>"CREDIT_CARD", "name"=>"Gem Visa"}, {"id"=>"09", "type"=>"CREDIT_CARD", "name"=>"Gem Visa"}]) but got a Hash at $
-
-      3) Verifying a pact between FrontendWebsite and ProductService Given no products exist get all products with GET /products returns a response which has status code 200
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 200
-                got: 401
-
-           (compared using eql?)
-
-      4) Verifying a pact between FrontendWebsite and ProductService Given no products exist get all products with GET /products returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: {"error":"Unauthorized"}
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-           -[,
-           -
-           -]
-           +{
-           +  "error": "Unauthorized"
-           +}
-
-
-           Description of differences
-           --------------------------------------
-           * Expected an Array but got a Hash at $
-
-      5) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /product/10 returns a response which has status code 200
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 200
-                got: 401
-
-           (compared using eql?)
-
-      6) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /product/10 returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: {"error":"Unauthorized"}
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-            {
-           -  "id": String,
-           -  "type": String,
-           -  "name": String
-            }
-
-           Description of differences
-           --------------------------------------
-           * Could not find key "id" (keys present are: error) at $
-           * Could not find key "type" (keys present are: error) at $
-           * Could not find key "name" (keys present are: error) at $
-
-      7) Verifying a pact between FrontendWebsite and ProductService Given product with ID 11 does not exist get product with ID 11 with GET /product/11 returns a response which has status code 404
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 404
-                got: 401
-
-           (compared using eql?)
-
-
-    6 interactions, 4 failures
-
-    Failed interactions:
-
-
-    * Get all products given products exist
-
-    * Get all products given no products exist
-    * Get product with id 10 given product with ID 10 exists
-    * Get product with id 11 given product with ID 11 does not exist
-
-      at ChildProcess.<anonymous> (node_modules/@pact-foundation/pact-node/src/verifier.ts:194:58)
-
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 1 total
-Snapshots:   0 total
-Time:        1.988s, estimated 2s
-Ran all test suites.
-[2020-01-14T11:49:31.719Z]  WARN: pact-node@10.2.2/5759: Pact exited with code 1.
-npm ERR! Test failed.  See above for more details.
+Verifying a pact between FrontendWebsite and ProductService
+
+  get all products
+    returns a response which
+      has status code 200 (FAILED)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (FAILED)
+
+  get product by ID 10 with no auth token
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
+
+  get product with ID 10
+    returns a response which
+      has status code 200 (FAILED)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (FAILED)
+
+  get product with ID 11
+    returns a response which
+      has status code 404 (FAILED)
+      has a matching body (OK)
+
+  get all products
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
+
+
+Failures:
+
+1) Verifying a pact between FrontendWebsite and ProductService Given no products exist - get all products
+    1.1) has a matching body
+           $ -> Type mismatch: Expected List [] but received Map {"error":"Unauthorized"}
+    1.2) has status code 200
+           expected 200 but was 401
+2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists - get product with ID 10
+    2.1) has a matching body
+           $ -> Actual map is missing the following keys: id, name, type
+    2.2) has status code 200
+           expected 200 but was 401
+3) Verifying a pact between FrontendWebsite and ProductService Given product with ID 11 does not exist - get product with ID 11
+    3.1) has status code 404
+           expected 404 but was 401
+
+There were 3 pact failures
 ```
 
 Oh, dear. _More_ tests are failing. Can you understand why?
