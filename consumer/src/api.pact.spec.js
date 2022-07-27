@@ -69,12 +69,14 @@ describe("API Pact test", () => {
                 },
             });
 
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([]);
+            await provider.executeTest(async (mockService) => {
+                const api = new API(mockService.url);
+                
+                // make request to Pact mock server
+                const product = await api.getAllProducts();
+                
+                expect(product).toStrictEqual([]);
+            })
         });
     });
 
@@ -132,10 +134,13 @@ describe("API Pact test", () => {
                 },
             });
 
-            const api = new API(provider.mockService.baseUrl);
+            await provider.executeTest(async (mockService) => {
+                const api = new API(mockService.url);
+                
+                // make request to Pact mock server
+                await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
+            })
 
-            // make request to Pact mock server
-            await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
         });
     });
 });

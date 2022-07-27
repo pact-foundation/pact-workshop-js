@@ -643,149 +643,36 @@ What does our provider have to say about this new test. Again, copy the updated 
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:11:51.390Z]  INFO: pact@9.5.0/3894: Verifying provider
-[2020-01-14T11:11:51.394Z]  INFO: pact-node@10.2.2/3894: Verifying Pacts.
-[2020-01-14T11:11:51.395Z]  INFO: pact-node@10.2.2/3894: Verifying Pact Files
-[2020-01-14T11:11:51.941Z]  WARN: pact@9.5.0/3894: No state handler found for "products exist", ignorning
-[2020-01-14T11:11:51.972Z]  WARN: pact@9.5.0/3894: No state handler found for "no products exist", ignorning
-[2020-01-14T11:11:51.982Z]  WARN: pact@9.5.0/3894: No state handler found for "product with ID 10 exists", ignorning
-[2020-01-14T11:11:51.989Z]  WARN: pact@9.5.0/3894: No state handler found for "product with ID 11 does not exist", ignorning
- FAIL  product/product.pact.test.js
-  Pact Verification
-    ✕ validates the expectations of ProductService (669ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-  ● Pact Verification › validates the expectations of ProductService
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (FAILED)
 
-    WARN: Only the first item will be used to match the items in the array at $['body']
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-    INFO: Reading pact at pact-workshop-js/provider/pacts/frontendwebsite-productservice.json
-
-    Verifying a pact between FrontendWebsite and ProductService
-
-      Given products exist
-        get all products
-          with GET /products
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given no products exist
-
-        get all products
-
-          with GET /products
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body (FAILED - 1)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 10 exists
-
-        get product with ID 10
-
-          with GET /product/10
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 11 does not exist
-
-        get product with ID 11
-
-          with GET /product/11
-
-            returns a response which
-
-              has status code 404 (FAILED - 2)
+  get product with ID 11
+    returns a response which
+      has status code 404 (FAILED)
+      has a matching body (OK)
 
 
-    Failures:
+Failures:
 
-      1) Verifying a pact between FrontendWebsite and ProductService Given no products exist get all products with GET /products returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: [{"id":"09","type":"CREDIT_CARD","name":"Gem Visa","version":"v1"},{"id":"10","type":"CREDIT_CARD","name":"28 Degrees","version":"v1"},{"id":"11","type":"PERSONAL_LOAN","name":"MyFlexiPay","version":"v2"}]
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-           -[,
-           -
-           +[
-           +  {
-           +    "id": "09",
-           +    "type": "CREDIT_CARD",
-           +    "name": "Gem Visa",
-           +    "version": "v1"
-           +  },
-           +  {
-           +    "id": "10",
-           +    "type": "CREDIT_CARD",
-           +    "name": "28 Degrees",
-           +    "version": "v1"
-           +  },
-           +  {
-           +    "id": "11",
-           +    "type": "PERSONAL_LOAN",
-           +    "name": "MyFlexiPay",
-           +    "version": "v2"
-           +  },
-            ]
-
-           Description of differences
-           --------------------------------------
-           * Actual array is too long and should not contain a Hash at $[0]
-           * Actual array is too long and should not contain a Hash at $[1]
-           * Actual array is too long and should not contain a Hash at $[2]
-
-      2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 11 does not exist get product with ID 11 with GET /product/11 returns a response which has status code 404
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 404
-                got: 200
-
-           (compared using eql?)
-
-
-    4 interactions, 2 failures
-
-    Failed interactions:
-
-    * Get all products given no products exist
-
-    * Get product with id 11 given product with ID 11 does not exist
-
-      at ChildProcess.<anonymous> (node_modules/@pact-foundation/pact-node/src/verifier.ts:194:58)
-
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 1 total
-Snapshots:   0 total
-Time:        2.044s
-Ran all test suites.
-[2020-01-14T11:11:52.052Z]  WARN: pact-node@10.2.2/3894: Pact exited with code 1.
-npm ERR! Test failed.  See above for more details.
+1) Verifying a pact between FrontendWebsite and ProductService - get all products
+    1.1) has a matching body
+           $ -> Expected an empty List but received [{"id":"09","name":"Gem Visa","type":"CREDIT_CARD","version":"v1"},{"id":"10","name":"28 Degrees","type":"CREDIT_CARD","version":"v1"},{"id":"11","name":"MyFlexiPay","type":"PERSONAL_LOAN","version":"v2"}]
+2) Verifying a pact between FrontendWebsite and ProductService - get product with ID 11
+    2.1) has status code 404
+           expected 404 but was 200
 ```
 
 We expected this failure, because the product we are requesing does in fact exist! What we want to test for, is what happens if there is a different *state* on the Provider. This is what is referred to as "Provider states", and how Pact gets around test ordering and related issues.
