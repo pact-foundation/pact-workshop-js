@@ -343,7 +343,7 @@ To simplify running the tests, add this to `consumer/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
+"test:pact": "react-scripts test --testTimeout 30000 pact.spec.js",
 ```
 
 Running this test still passes, but it creates a pact file which we can use to validate our assumptions on the provider side, and have conversation around.
@@ -1738,7 +1738,7 @@ Now add this to `consumer/package.json`:
 Now run
 
 ```console
-❯ CI=true npm run test:pact --prefix consumer
+❯ npm run test:pact --prefix consumer
 
 PASS src/api.pact.spec.js
   API Pact test
@@ -1938,10 +1938,10 @@ pact
 Now run
 
 ```console
-❯ CI=true npm run test:pact --prefix consumer
+❯ npm run test:pact --prefix consumer
 
 > consumer@0.1.0 test:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/consumer
-> CI=true react-scripts test --testTimeout 30000 pact.spec.js
+> react-scripts test --testTimeout 30000 pact.spec.js
 
 PASS src/api.pact.spec.js
   API Pact test
@@ -1953,26 +1953,21 @@ PASS src/api.pact.spec.js
       ✓ ID 10 exists (10ms)
       ✓ product does not exist (8ms)
       ✓ no auth token (12ms)
+```
 
-Test Suites: 1 passed, 1 total
-Tests:       6 passed, 6 total
-Snapshots:   0 total
-Time:        1.821s, estimated 2s
-Ran all test suites matching /pact.spec.js/i.
+Then publish your pacts:
 
-> consumer@0.1.0 posttest:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/consumer
-> npx pact-broker publish ./pacts --tag test -a 1.0.0
+```
+❯ npm run pact:publish --prefix consumer
 
-Tagging version 1.0.0 of FrontendWebsite as "test"
-Publishing FrontendWebsite/ProductService pact to pact broker at https://testdemo.pactflow.io
-The latest version of this pact can be accessed at the following URL (use this to configure the provider verification):
-https://you54f.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/latest
+> pact-broker publish ./pacts --consumer-app-version="$(npx @pact-foundation/absolute-version)" --auto-detect-version-properties
 
-
-Pact contract publishing complete!
-
-Head over to https://you54f.pactflow.io
-to see your published contracts.
+Updated FrontendWebsite version 71c1b7-step12+71c1b7.SNAPSHOT.SB-AS-G7GM9F7 with branch step12
+Pact successfully published for FrontendWebsite version 71c1b7-step12+71c1b7.SNAPSHOT.SB-AS-G7GM9F7 and provider ProductService.
+  View the published pact at https://testdemo.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/version/71c1b7-step12%2B71c1b7.SNAPSHOT.SB-AS-G7GM9F7
+  Events detected: contract_published, contract_requiring_verification_published, contract_content_changed (first time untagged pact published)
+  Webhook "Automatically trigger pact verification on contract change." triggered for event contract_requiring_verification_published.
+    View logs at https://testdemo.pactflow.io/triggered-webhooks/fa8d571e-8b61-41f8-9955-79a6fa9481fd/logs
 ```
 
 Have a browse around your pactflow broker and see your newly published contract
@@ -1998,7 +1993,7 @@ pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
 Let's run the provider verification one last time after this change:
 
 ```console
-❯ CI=true npm run test:pact --prefix provider
+❯ npm run test:pact --prefix provider
 
 > product-service@1.0.0 test:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/provider
 > npx jest --testTimeout 30000 --testMatch "**/*.pact.test.js"
@@ -2020,10 +2015,9 @@ As per step 11, we can use the `can-i-deploy` command to gate releases.
 You can run the `pact-broker can-i-deploy` checks as follows:
 
 ```console
-❯ npx pact-broker can-i-deploy \
+❯ pact-broker can-i-deploy \
                --pacticipant FrontendWebsite \
-               --version 1.0.0 \
-               --to test
+               --latest
 
 Computer says yes \o/
 
@@ -2035,10 +2029,9 @@ All required verification results are published and successful
 
 ----------------------------
 
-❯ npx pact-broker can-i-deploy \
+❯ pact-broker can-i-deploy \
                 --pacticipant ProductService \
-                --version 1.0.0 \
-                --to test
+                --latest
 
 Computer says yes \o/
 
