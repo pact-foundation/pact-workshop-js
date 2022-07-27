@@ -23,8 +23,8 @@
     "build": "react-scripts build",
     "test": "CI=true react-scripts test",
     "eject": "react-scripts eject",
-    "test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
-    "posttest:pact": "node publish.pact.js"
+    "test:pact": "CI=true react-scripts test --testTimeout=30000 pact.spec.js",
+    "pact:publish": "pact-broker publish ./pacts --verbose --consumer-app-version=\"$(npx @pact-foundation/absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -40,20 +40,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@pact-foundation/pact": "^9.11.1",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@typescript-eslint/eslint-plugin": "^2.16.0",
-    "@typescript-eslint/parser": "^2.16.0",
-    "babel-eslint": "^10.0.3",
-    "eslint": "^6.8.0",
-    "eslint-config-react-app": "^5.1.0",
-    "eslint-plugin-flowtype": "^3.13.0",
-    "eslint-plugin-import": "^2.20.0",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.17.0",
-    "eslint-plugin-react-hooks": "^1.7.0",
-    "nock": "^11.7.2"
   }
 }

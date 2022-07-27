@@ -1391,19 +1391,7 @@ We can now run the Provider tests
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:58:57.933Z]  INFO: pact@9.5.0/6636: Verifying provider
-[2020-01-14T11:58:57.937Z]  INFO: pact-node@10.2.2/6636: Verifying Pacts.
-[2020-01-14T11:58:57.938Z]  INFO: pact-node@10.2.2/6636: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (626ms)
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        2.094s
-Ran all test suites.
-[2020-01-14T11:58:58.557Z]  INFO: pact-node@10.2.2/6636: Pact Verification succeeded.
 ```
 
 *Move on to [step 11](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker)*
@@ -1428,62 +1416,17 @@ docker-compose up
 
 ### Publish contracts from consumer
 
-First, in the consumer project we need to tell Pact about our broker.
-
-In `consumer/publish.pact.js`:
-
-```groovy
-const pact = require('@pact-foundation/pact-node');
-const path = require('path');
-
-if (!process.env.CI) {
-    console.log("skipping Pact publish...");
-    return
-}
-
-let pactBrokerUrl = process.env.PACT_BROKER_BASE_URL || 'http://localhost:8000';
-let pactBrokerUsername = process.env.PACT_BROKER_USERNAME || 'pact_workshop';
-let pactBrokerPassword = process.env.PACT_BROKER_PASSWORD || 'pact_workshop';
-
-const gitHash = require('child_process')
-    .execSync('git rev-parse --short HEAD')
-    .toString().trim();
-
-const opts = {
-    pactFilesOrDirs: [path.resolve(__dirname, './pacts/')],
-    pactBroker: pactBrokerUrl,
-    pactBrokerUsername: pactBrokerUsername,
-    pactBrokerPassword: pactBrokerPassword,
-    tags: ['prod', 'test'],
-    consumerVersion: gitHash
-};
-
-pact
-    .publishPacts(opts)
-    .then(() => {
-        console.log('Pact contract publishing complete!');
-        console.log('');
-        console.log(`Head over to ${pactBrokerUrl} and login with`);
-        console.log(`=> Username: ${pactBrokerUsername}`);
-        console.log(`=> Password: ${pactBrokerPassword}`);
-        console.log('to see your published contracts.')
-    })
-    .catch(e => {
-        console.log('Pact contract publishing failed: ', e)
-    });
-```
-
-Now add this to `consumer/package.json`:
+First, in the consumer project we need to tell Pact about our broker. We can use the in built `pact-broker` CLI command to do this:
 
 ```javascript
 // add this under scripts
-"posttest:pact": "node publish.pact.js",
+"pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx @pact-foundation/absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
 ```
 
 Now run
 
 ```console
-❯ CI=true npm run test:pact --prefix consumer
+❯ npm run test:pact --prefix consumer
 
 PASS src/api.pact.spec.js
   API Pact test
@@ -1501,26 +1444,18 @@ Tests:       6 passed, 6 total
 Snapshots:   0 total
 Time:        2.653s
 Ran all test suites matching /pact.spec.js/i.
-
-[2020-01-14T12:27:49.592Z]  INFO: pact-node@10.2.4/10405: Publishing Pacts to Broker
-[2020-01-14T12:27:49.593Z]  INFO: pact-node@10.2.4/10405: Publishing pacts to broker at: http://localhost:8000
-[2020-01-14T12:27:50.164Z]  INFO: pact-node@10.2.4/10405:
-
-    Tagging version fe0b6a3 of FrontendWebsite as "prod"
-    Tagging version fe0b6a3 of FrontendWebsite as "test"
-    Publishing FrontendWebsite/ProductService pact to pact broker at http://localhost:8000
-    The given version of pact is already published. Overwriting...
-    The latest version of this pact can be accessed at the following URL (use this to configure the provider verification):
-    http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/latest
-
-
-Pact contract publishing complete!
-
-Head over to http://localhost:8000 and login with
-=> Username: pact_workshop
-=> Password: pact_workshop
-to see your published contracts.
 ```
+
+To publish the pacts:
+
+
+```
+❯ npm run pact:publish --prefix consumer
+
+
+```
+
+*NOTE: you would usually only publish pacts from CI. *
 
 Have a browse around the broker on http://localhost:8000 (with username/password: `pact_workshop`/`pact_workshop`) and see your newly published contract!
 
@@ -1543,35 +1478,48 @@ pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 ```
 
 ```javascript
-// add
-if (process.env.CI || process.env.PACT_PUBLISH_RESULTS) {
-  Object.assign(opts, {
-    publishVerificationResult: true,
-  });
-}
-
-// before
-return new Verifier(opts).verifyProvider().finally(() => {
+// add to the opts {...}
+publishVerificationResult: process.env.CI || process.env.PACT_BROKER_PUBLISH_VERIFICATION_RESULTS
 ```
 
-Let's run the provider verification one last time after this change:
+Let's run the provider verification one last time after this change. It should print a few notices showing which pact(s) it has found from the broker, and why they were selected:
 
 ```console
-❯ PACT_PUBLISH_RESULTS=true npm run test:pact --prefix provider
+❯ PACT_BROKER_PUBLISH_VERIFICATION_RESULTS=true npm run test:pact --prefix provider
 
-[2020-01-14T12:34:08.157Z]  INFO: pact@9.5.0/10742: Verifying provider
-[2020-01-14T12:34:08.161Z]  INFO: pact-node@10.2.2/10742: Verifying Pacts.
-[2020-01-14T12:34:08.161Z]  INFO: pact-node@10.2.2/10742: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (682ms)
+The pact at http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/80d8e7379fc7d5cfe503665ec1776bfb139aa8cf is being verified because the pact content belongs to the consumer version matching the following criterion:
+    * latest version of FrontendWebsite that has a pact with ProductService (9cd950-step10+9cd950.SNAPSHOT.SB-AS-G7GM9F7)
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        1.99s, estimated 2s
-Ran all test suites.
-[2020-01-14T12:34:08.837Z]  INFO: pact-node@10.2.2/10742: Pact Verification succeeded.
+Verifying a pact between FrontendWebsite and ProductService
+
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
+  get product by ID 10 with no auth token
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
+
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
+
+  get product with ID 11
+    returns a response which
+      has status code 404 (OK)
+      has a matching body (OK)
+
+  get all products
+    returns a response which
+      has status code 401 (OK)
+      has a matching body (OK)
 ```
 
 As part of this process, the results of the verification - the outcome (boolean) and the detailed information about the failures at the interaction level - are published to the Broker also.
