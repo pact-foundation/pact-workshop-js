@@ -46,6 +46,7 @@ describe("Pact Verification", () => {
                 req.headers["authorization"] = `Bearer ${new Date().toISOString()}`;
                 next();
             },
+            publishVerificationResult: process.env.CI || process.env.PACT_BROKER_PUBLISH_VERIFICATION_RESULTS
         };
 
         if (process.env.CI) {
