@@ -8,7 +8,7 @@
     "test": "npx jest"
   },
   "dependencies": {
-    "@pact-foundation/pact": "^9.11.1",
+    "@pact-foundation/pact": "^10.0.0-beta.61",
     "cors": "^2.8.5",
     "express": "^4.17.1"
   },
