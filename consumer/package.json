@@ -24,7 +24,7 @@
     "test": "CI=true react-scripts test",
     "eject": "react-scripts eject",
     "test:pact": "CI=true react-scripts test --testTimeout=30000 pact.spec.js",
-    "pact:publish": "pact-broker publish ./pacts --verbose --consumer-app-version=\"$(npx @pact-foundation/absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
+    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx @pact-foundation/absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
   },
   "eslintConfig": {
     "extends": "react-app"
