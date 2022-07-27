@@ -239,97 +239,93 @@ In `consumer/src/api.pact.spec.js`:
 
 ```javascript
 import path from "path";
-import {Pact} from "@pact-foundation/pact";
-import {API} from "./api";
-import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
+import { PactV3, MatchersV3, SpecificationVersion, } from "@pact-foundation/pact";
+import { API } from "./api";
+const { eachLike, like } = MatchersV3;
 
-const provider = new Pact({
-    consumer: 'FrontendWebsite',
-    provider: 'ProductService',
-    log: path.resolve(process.cwd(), 'logs', 'pact.log'),
-    logLevel: "warn",
-    dir: path.resolve(process.cwd(), 'pacts'),
-    spec: 2
+const provider = new PactV3({
+  consumer: "FrontendWebsite",
+  provider: "ProductService",
+  log: path.resolve(process.cwd(), "logs", "pact.log"),
+  logLevel: "warn",
+  dir: path.resolve(process.cwd(), "pacts"),
+  spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
 });
 
 describe("API Pact test", () => {
+  describe("getting all products", () => {
+    test("products exists", async () => {
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "products exist" }],
+        uponReceiving: "get all products",
+        withRequest: {
+          method: "GET",
+          path: "/products",
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: eachLike({
+            id: "09",
+            type: "CREDIT_CARD",
+            name: "Gem Visa",
+          }),
+        },
+      });
 
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-    beforeAll(() => provider.setup());
-    afterEach(() => provider.verify());
-    afterAll(() => provider.finalize());
+        // make request to Pact mock server
+        const product = await api.getAllProducts();
 
-    describe("getting all products", () => {
-        test("products exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'products exist',
-                uponReceiving: 'get all products',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products'
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: eachLike({
-                        id: "09",
-                        type: "CREDIT_CARD",
-                        name: "Gem Visa"
-                    }),
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
-            ]);
-        });
+        expect(product).toStrictEqual([
+          { id: "09", name: "Gem Visa", type: "CREDIT_CARD" },
+        ]);
+      });
     });
+  });
 
-    describe("getting one product", () => {
-        test("ID 10 exists", async () => {
+  describe("getting one product", () => {
+    test("ID 10 exists", async () => {
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "product with ID 10 exists" }],
+        uponReceiving: "get product with ID 10",
+        withRequest: {
+          method: "GET",
+          path: "/products/10",
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: like({
+            id: "10",
+            type: "CREDIT_CARD",
+            name: "28 Degrees",
+          }),
+        },
+      });
 
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 10 exists',
-                uponReceiving: 'get product with ID 10',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products/10'
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: like({
-                        id: "10",
-                        type: "CREDIT_CARD",
-                        name: "28 Degrees"
-                    }),
-                },
-            });
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-            const api = new API(provider.mockService.baseUrl);
+        // make request to Pact mock server
+        const product = await api.getProduct("10");
 
-            // make request to Pact mock server
-            const product = await api.getProduct("10");
-
-            expect(product).toStrictEqual({
-                id: "10",
-                type: "CREDIT_CARD",
-                name: "28 Degrees"
-            });
+        expect(product).toStrictEqual({
+          id: "10",
+          type: "CREDIT_CARD",
+          name: "28 Degrees",
         });
+      });
     });
+  });
 });
 ```
 
@@ -416,124 +412,32 @@ We now need to validate the pact generated by the consumer is valid, by executin
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T06:54:12.572Z]  INFO: pact@9.5.0/12790: Verifying provider
-[2020-01-14T06:54:12.575Z]  INFO: pact-node@10.2.2/12790: Verifying Pacts.
-[2020-01-14T06:54:12.576Z]  INFO: pact-node@10.2.2/12790: Verifying Pact Files
- FAIL  product/product.pact.test.js
-  Pact Verification
-    ✕ validates the expectations of ProductService (716ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-  ● Pact Verification › validates the expectations of ProductService
+  get product with ID 10
+    returns a response which
+      has status code 200 (FAILED)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (FAILED)
+      has a matching body (FAILED)
 
-    WARN: Only the first item will be used to match the items in the array at $['body']
-
-    INFO: Reading pact at pact-workshop-js/provider/pacts/frontendwebsite-productservice.json
-
-
-    Verifying a pact between FrontendWebsite and ProductService
-      Given products exist
-        get all products
-          with GET /products
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
 
-      Given product with ID 10 exists
+Failures:
 
-        get product with ID 10
-
-
-          with GET /products/10
-            returns a response which
-
-              has status code 200 (FAILED - 1)
-
-              has a matching body (FAILED - 2)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8" (FAILED - 3)
-
-
-    Failures:
-
-      1) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /products/10 returns a response which has status code 200
-         Failure/Error: expect(response_status).to eql expected_response_status
-
-           expected: 200
-                got: 404
-
-           (compared using eql?)
-
-      2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /products/10 returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
-
-           Actual: <!DOCTYPE html>
-           <html lang="en">
-           <head>
-           <meta charset="utf-8">
-           <title>Error</title>
-           </head>
-           <body>
-           <pre>Cannot GET /products/10</pre>
-           </body>
-           </html>
-
-
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-           -{
-           -  "id": "10",
-           -  "type": "CREDIT_CARD",
-           -  "name": "28 Degrees"
-           -}
-           +<!DOCTYPE html>
-           +<html lang="en">
-           +<head>
-           +<meta charset="utf-8">
-           +<title>Error</title>
-           +</head>
-           +<body>
-           +<pre>Cannot GET /products/10</pre>
-           +</body>
-           +</html>
-
-
-           Description of differences
-           --------------------------------------
-           * Expected a Hash but got a String ("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot GET /products/10</pre>\n</body>\n</html>\n") at $
-
-      3) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists get product with ID 10 with GET /products/10 returns a response which includes headers "Content-Type" which equals "application/json; charset=utf-8"
-         Failure/Error: expect(header_value).to match_header(name, expected_header_value)
-           Expected header "Content-Type" to equal "application/json; charset=utf-8", but was "text/html; charset=utf-8"
-
-
-    2 interactions, 1 failure
-
-    Failed interactions:
-
-
-    * Get product with id 10 given product with ID 10 exists
-
-      at ChildProcess.<anonymous> (node_modules/@pact-foundation/pact-node/src/verifier.ts:194:58)
-
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 1 total
-Snapshots:   0 total
-Time:        2.043s
-Ran all test suites.
+1) Verifying a pact between FrontendWebsite and ProductService Given product with ID 10 exists - get product with ID 10
+    1.1) has a matching body
+           expected 'application/json;charset=utf-8' body but was 'text/html;charset=utf-8'
+    1.2) has status code 200
+           expected 200 but was 404
+    1.3) includes header 'Content-Type' with value 'application/json; charset=utf-8'
+           Expected header 'Content-Type' to have value 'application/json; charset=utf-8' but was 'text/html; charset=utf-8'
 ```
 
 ![Pact Verification](diagrams/workshop_step4_pact.svg)
@@ -609,23 +513,21 @@ Run the command:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T10:58:34.157Z]  INFO: pact@9.5.0/3498: Verifying provider
-[2020-01-14T10:58:34.161Z]  INFO: pact-node@10.2.2/3498: Verifying Pacts.
-[2020-01-14T10:58:34.162Z]  INFO: pact-node@10.2.2/3498: Verifying Pact Files
- PASS  product/product.pact.test.js
-  Pact Verification
-    ✓ validates the expectations of ProductService (626ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        2.068s
-Ran all test suites.
-[2020-01-14T10:58:34.724Z]  WARN: pact@9.5.0/3498: No state handler found for "products exist", ignorning
-[2020-01-14T10:58:34.755Z]  WARN: pact@9.5.0/3498: No state handler found for "product with ID 10 exists", ignorning
-[2020-01-14T10:58:34.780Z]  INFO: pact-node@10.2.2/3498: Pact Verification succeeded.
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 ```
 
 Yay - green ✅!
@@ -689,10 +591,14 @@ test("product does not exist", async () => {
     },
   });
 
-  const api = new API(provider.mockService.baseUrl);
+  await provider.executeTest(async (mockService) => {
+    const api = new API(mockService.url);
 
-  // make request to Pact mock server
-  await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
+    // make request to Pact mock server
+    await expect(api.getProduct("11")).rejects.toThrow(
+    "Request failed with status code 404"
+    );
+  });
 });
 ```
 
@@ -723,85 +629,26 @@ What does our provider have to say about this new test:
 ```console
 ❯ npm run test:pact --prefix provider
 
-[2020-01-14T11:11:51.390Z]  INFO: pact@9.5.0/3894: Verifying provider
-[2020-01-14T11:11:51.394Z]  INFO: pact-node@10.2.2/3894: Verifying Pacts.
-[2020-01-14T11:11:51.395Z]  INFO: pact-node@10.2.2/3894: Verifying Pact Files
-[2020-01-14T11:11:51.941Z]  WARN: pact@9.5.0/3894: No state handler found for "products exist", ignorning
-[2020-01-14T11:11:51.972Z]  WARN: pact@9.5.0/3894: No state handler found for "no products exist", ignorning
-[2020-01-14T11:11:51.982Z]  WARN: pact@9.5.0/3894: No state handler found for "product with ID 10 exists", ignorning
-[2020-01-14T11:11:51.989Z]  WARN: pact@9.5.0/3894: No state handler found for "product with ID 11 does not exist", ignorning
- FAIL  product/product.pact.test.js
-  Pact Verification
-    ✕ validates the expectations of ProductService (669ms)
+Verifying a pact between FrontendWebsite and ProductService
 
-  ● Pact Verification › validates the expectations of ProductService
+  get all products
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (FAILED)
 
-    WARN: Only the first item will be used to match the items in the array at $['body']
+  get product with ID 10
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json; charset=utf-8" (OK)
+      has a matching body (OK)
 
-    INFO: Reading pact at pact-workshop-js/provider/pacts/frontendwebsite-productservice.json
-
-    Verifying a pact between FrontendWebsite and ProductService
-
-      Given products exist
-        get all products
-          with GET /products
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given no products exist
-
-        get all products
-
-          with GET /products
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body (FAILED - 1)
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 10 exists
-
-        get product with ID 10
-
-          with GET /product/10
-
-            returns a response which
-
-              has status code 200
-
-              has a matching body
-
-              includes headers
-
-                "Content-Type" which equals "application/json; charset=utf-8"
-
-      Given product with ID 11 does not exist
-
-        get product with ID 11
-
-          with GET /product/11
-
-            returns a response which
-
-              has status code 404 (FAILED - 2)
-
-
-    Failures:
-
-      1) Verifying a pact between FrontendWebsite and ProductService Given no products exist get all products with GET /products returns a response which has a matching body
-         Failure/Error: expect(response_body).to match_term expected_response_body, diff_options, example
+  get product with ID 11
+    returns a response which
+      has status code 404 (FAILED)
+      has a matching body (OK)
 
   get all products
     returns a response which
@@ -811,40 +658,7 @@ What does our provider have to say about this new test:
       has a matching body (OK)
 
 
-           Diff
-           --------------------------------------
-           Key: - is expected
-                + is actual
-           Matching keys and values are not shown
-
-           -[,
-           -
-           +[
-           +  {
-           +    "id": "09",
-           +    "type": "CREDIT_CARD",
-           +    "name": "Gem Visa",
-           +    "version": "v1"
-           +  },
-           +  {
-           +    "id": "10",
-           +    "type": "CREDIT_CARD",
-           +    "name": "28 Degrees",
-           +    "version": "v1"
-           +  },
-           +  {
-           +    "id": "11",
-           +    "type": "PERSONAL_LOAN",
-           +    "name": "MyFlexiPay",
-           +    "version": "v2"
-           +  },
-            ]
-
-           Description of differences
-           --------------------------------------
-           * Actual array is too long and should not contain a Hash at $[0]
-           * Actual array is too long and should not contain a Hash at $[1]
-           * Actual array is too long and should not contain a Hash at $[2]
+Failures:
 
 1) Verifying a pact between FrontendWebsite and ProductService Given no products exist - get all products
     1.1) has a matching body
@@ -852,8 +666,6 @@ What does our provider have to say about this new test:
 2) Verifying a pact between FrontendWebsite and ProductService Given product with ID 11 does not exist - get product with ID 11
     2.1) has status code 404
            expected 404 but was 200
-
-There were 2 pact failures
 ```
 
 We expected this failure, because the product we are requesing does in fact exist! What we want to test for, is what happens if there is a different *state* on the Provider. This is what is referred to as "Provider states", and how Pact gets around test ordering and related issues.
@@ -972,204 +784,57 @@ In `consumer/src/api.js`:
     }
 ```
 
-In `consumer/src/api.pact.spec.js`:
+In `consumer/src/api.pact.spec.js` we add authentication headers to the request setup for the existing tests:
 
-```javascript
-import path from "path";
-import {Pact} from "@pact-foundation/pact";
-import {API} from "./api";
-import {eachLike, like} from "@pact-foundation/pact/dsl/matchers";
+```js
+      await provider.addInteraction({
+        states: [{ description: "no products exist" }],
+        uponReceiving: "get all products",
+        withRequest: {
+          method: "GET",
+          path: "/products",
+          headers: {
+            Authorization: like("Bearer 2019-01-14T11:34:18.045Z"),
+          },
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: [],
+        },
+      });
+```
 
-const provider = new Pact({
-    consumer: 'FrontendWebsite',
-    provider: 'ProductService',
-    log: path.resolve(process.cwd(), 'logs', 'pact.log'),
-    logLevel: "warn",
-    dir: path.resolve(process.cwd(), 'pacts'),
-    spec: 2
-});
+and we also add two new tests for the "no auth token" use case:
 
-describe("API Pact test", () => {
+```js
+    // ...
+    test("no auth token", async () => {
 
+      // set up Pact interactions
+      await provider.addInteraction({
+        states: [{ description: "product with ID 10 exists" }],
+        uponReceiving: "get product by ID 10 with no auth token",
+        withRequest: {
+          method: "GET",
+          path: "/product/10",
+        },
+        willRespondWith: {
+          status: 401,
+        },
+      });
 
-    beforeAll(() => provider.setup());
-    afterEach(() => provider.verify());
-    afterAll(() => provider.finalize());
+      await provider.executeTest(async (mockService) => {
+        const api = new API(mockService.url);
 
-    describe("getting all products", () => {
-        test("products exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'products exist',
-                uponReceiving: 'get all products',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products',
-                    headers: {
-                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
-                    }
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: eachLike({
-                        id: "09",
-                        type: "CREDIT_CARD",
-                        name: "Gem Visa"
-                    }),
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([
-                {"id": "09", "name": "Gem Visa", "type": "CREDIT_CARD"}
-            ]);
-        });
-
-        test("no products exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'no products exist',
-                uponReceiving: 'get all products',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products',
-                    headers: {
-                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
-                    }
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: []
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getAllProducts();
-
-            expect(product).toStrictEqual([]);
-        });
-
-        test("no auth token", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'products exist',
-                uponReceiving: 'get all products with no auth token',
-                withRequest: {
-                    method: 'GET',
-                    path: '/products'
-                },
-                willRespondWith: {
-                    status: 401
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            await expect(api.getAllProducts()).rejects.toThrow("Request failed with status code 401");
-        });
+        // make request to Pact mock server
+        await expect(api.getProduct("10")).rejects.toThrow(
+          "Request failed with status code 401"
+        );
+      });
     });
-
-    describe("getting one product", () => {
-        test("ID 10 exists", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 10 exists',
-                uponReceiving: 'get product with ID 10',
-                withRequest: {
-                    method: 'GET',
-                    path: '/product/10',
-                    headers: {
-                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
-                    }
-                },
-                willRespondWith: {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: like({
-                        id: "10",
-                        type: "CREDIT_CARD",
-                        name: "28 Degrees"
-                    }),
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            const product = await api.getProduct("10");
-
-            expect(product).toStrictEqual({
-                id: "10",
-                type: "CREDIT_CARD",
-                name: "28 Degrees"
-            });
-        });
-
-        test("product does not exist", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 11 does not exist',
-                uponReceiving: 'get product with ID 11',
-                withRequest: {
-                    method: 'GET',
-                    path: '/product/11',
-                    headers: {
-                        "Authorization": like("Bearer 2019-01-14T11:34:18.045Z")
-                    }
-                },
-                willRespondWith: {
-                    status: 404
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            await expect(api.getProduct("11")).rejects.toThrow("Request failed with status code 404");
-        });
-
-        test("no auth token", async () => {
-
-            // set up Pact interactions
-            await provider.addInteraction({
-                state: 'product with ID 10 exists',
-                uponReceiving: 'get product by ID 10 with no auth token',
-                withRequest: {
-                    method: 'GET',
-                    path: '/product/10'
-                },
-                willRespondWith: {
-                    status: 401
-                },
-            });
-
-            const api = new API(provider.mockService.baseUrl);
-
-            // make request to Pact mock server
-            await expect(api.getProduct("10")).rejects.toThrow("Request failed with status code 401");
-        });
-    });
-});
 ```
 
 Generate a new Pact file:
@@ -1392,36 +1057,6 @@ We can now run the Provider tests
 ❯ npm run test:pact --prefix provider
 
 
-Verifying a pact between FrontendWebsite and ProductService
-
-  get all products
-    returns a response which
-      has status code 200 (OK)
-      includes headers
-        "Content-Type" with value "application/json; charset=utf-8" (OK)
-      has a matching body (OK)
-
-  get product by ID 10 with no auth token
-    returns a response which
-      has status code 401 (OK)
-      has a matching body (OK)
-
-  get product with ID 10
-    returns a response which
-      has status code 200 (OK)
-      includes headers
-        "Content-Type" with value "application/json; charset=utf-8" (OK)
-      has a matching body (OK)
-
-  get product with ID 11
-    returns a response which
-      has status code 404 (OK)
-      has a matching body (OK)
-
-  get all products
-    returns a response which
-      has status code 401 (OK)
-      has a matching body (OK)
 ```
 
 *Move on to [step 11](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker)*
