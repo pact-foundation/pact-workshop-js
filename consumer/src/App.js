@@ -5,7 +5,6 @@ import 'spectre.css/dist/spectre-icons.min.css';
 import 'spectre.css/dist/spectre-exp.min.css';
 import Heading from "./Heading";
 import Layout from "./Layout";
-import {withRouter} from "react-router";
 import API from "./api";
 import PropTypes from 'prop-types';
 
@@ -36,7 +35,7 @@ function ProductTableRow(props) {
 ProductTableRow.propTypes = productPropTypes;
 
 function ProductTable(props) {
-    let products = props.products.map(p => (
+    const products = props.products.map(p => (
         <ProductTableRow key={p.id} product={p}/>
     ));
     return (
@@ -81,13 +80,8 @@ class App extends React.Component {
                 });
                 this.determineVisibleProducts();
             })
-            .catch(e => {
-                this.props.history.push({
-                    pathname: "/error",
-                    state: {
-                        error: e.toString()
-                    }
-                });
+            .catch(() => {
+                this.setState({error: true})
             });
     }
 
@@ -115,6 +109,10 @@ class App extends React.Component {
     }
 
     render() {
+        if (this.state.error) {
+            throw Error("unable to fetch product data")
+        }
+
         return (
             <Layout>
                 <Heading text="Products" href="/"/>
@@ -140,4 +138,4 @@ App.propTypes = {
     ).isRequired
 };
 
-export default withRouter(App);
+export default App;
