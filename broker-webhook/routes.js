@@ -1,18 +1,31 @@
-const router = require('express').Router();
-const exec = require('child_process').exec;
+const router = require("express").Router();
+const { exec } = require("child_process");
 
 router.all("/", (req, res, next) => {
-    console.log('Triggering provider tests...');
+  console.log(
+    `Got webhook ${JSON.stringify(req.body)} \n Triggering provider tests...`
+  );
 
-    exec(`cd ${__dirname}/../provider && PACT_BROKER_PUBLISH_VERIFICATION_RESULTS=true npm run test:pact`, (err) => {
-        if (err) {
-            console.error('Triggering test failed', err);
-            res.status(500).send();
-        } else {
-            console.log('Tests ran successfully');
-            res.status(200).send();
-        }
-    });
+  const testPact = exec(`cd ../provider && CI=true npm run test:pact`, {
+    cwd: __dirname,
+  });
+
+  testPact.stdout.on("data", (data) => {
+    console.log(`provider-verification: ${data.toString()}`);
+  });
+  testPact.stderr.on("data", (data) => {
+    console.log(`provider-verification [error]: ${data.toString()}`);
+  });
+
+  testPact.on("exit", (code) => {
+    if (code !== 0) {
+      console.log("provider-verification: tests failed");
+      res.status(500).send();
+    } else {
+      console.log("provider-verification: tests passed");
+      res.status(200).send();
+    }
+  });
 });
 
 module.exports = router;
