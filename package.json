@@ -5,7 +5,8 @@
   "scripts": {
     "postinstall": "concurrently \"npm ci --prefix consumer\" \"npm ci --prefix provider\"",
     "start": "concurrently \"npm start --prefix consumer\" \"npm start --prefix provider\"",
-    "lint": "concurrently \"cd consumer/ && npx eslint .\" \"cd provider/ && npx eslint .\""
+    "lint": "concurrently \"cd consumer/ && npx eslint .\" \"cd provider/ && npx eslint .\"",
+    "start-broker-webhook": "npm start --prefix broker-webhook"
   },
   "dependencies": {
     "concurrently": "^5.0.2"
