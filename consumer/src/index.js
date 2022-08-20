@@ -1,27 +1,25 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
-import './index.css';
-import App from './App';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./index.css";
+import App from "./App";
 import ProductPage from "./ProductPage";
-import ErrorPage from "./ErrorPage";
+import ErrorBoundary from "./ErrorBoundary";
 
 const routing = (
-    <Router>
-        <div>
-            <Switch>
-                <Route path="/error">
-                    <ErrorPage/>
-                </Route>
-                <Route path="/products/:id">
-                    <ProductPage/>
-                </Route>
-                <Route path="/">
-                    <App/>
-                </Route>
-            </Switch>
-        </div>
-    </Router>
+  <BrowserRouter history="">
+    <div>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/products/">
+            <Route path=":id" element={<ProductPage />} />
+          </Route>
+        </Routes>
+      </ErrorBoundary>
+    </div>
+  </BrowserRouter>
 );
 
-ReactDOM.render(routing, document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(routing);
