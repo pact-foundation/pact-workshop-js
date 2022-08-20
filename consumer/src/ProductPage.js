@@ -4,18 +4,18 @@ import 'spectre.css/dist/spectre-icons.min.css';
 import 'spectre.css/dist/spectre-exp.min.css';
 import Layout from "./Layout";
 import Heading from "./Heading";
-import {withRouter} from "react-router";
 import API from "./api";
-import PropTypes from 'prop-types';
 
 class ProductPage extends React.Component {
-    constructor(props) {
+    constructor(props) {        
         super(props);
+
+        const bits = window.location.pathname.split("/")
 
         this.state = {
             loading: true,
             product: {
-                id: props.match.params.id
+                id: bits[bits.length-1]
             }
         };
     }
@@ -26,18 +26,15 @@ class ProductPage extends React.Component {
                 loading: false,
                 product: r
             });
-        }).catch(e => {
-            console.error("failed to load product " + this.state.product.id, e);
-            this.props.history.push({
-                pathname: "/error",
-                state: {
-                    error: e.toString()
-                }
-            });
-        });
+        }).catch(() => {
+            this.setState({error: true})
+        })
     }
 
     render() {
+        if (this.state.error) {
+            throw Error("unable to fetch product data")
+        }
         const productInfo = (
             <div>
                 <p>ID: {this.state.product.id}</p>
@@ -61,10 +58,10 @@ class ProductPage extends React.Component {
 }
 
 ProductPage.propTypes = {
-    match: PropTypes.array.isRequired,
-    history: PropTypes.shape({
-        push: PropTypes.func.isRequired
-    }).isRequired
+    // match: PropTypes.array.isRequired,
+    // history: PropTypes.shape({
+    //     push: PropTypes.func.isRequired
+    // }).isRequired
 };
 
-export default withRouter(ProductPage);
+export default ProductPage;
