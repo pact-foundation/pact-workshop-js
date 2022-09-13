@@ -12,12 +12,12 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: postgres
 
-  broker_app:
-    image: dius/pact-broker
+  pact-broker:
+    image: pactfoundation/pact-broker
     links:
       - postgres
     ports:
-      - 8000:80
+      - 8000:9292
     environment:
       PACT_BROKER_BASIC_AUTH_USERNAME: pact_workshop
       PACT_BROKER_BASIC_AUTH_PASSWORD: pact_workshop
@@ -25,3 +25,4 @@ services:
       PACT_BROKER_DATABASE_PASSWORD: password
       PACT_BROKER_DATABASE_HOST: postgres
       PACT_BROKER_DATABASE_NAME: postgres
+      PACT_BROKER_DATABASE_CONNECT_MAX_RETRIES: "10"
