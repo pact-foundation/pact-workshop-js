@@ -1145,6 +1145,9 @@ pactUrls: [
 pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://localhost:8000",
 pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
 pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
+consumerVersionSelectors: [{
+  latest: true
+}],
 ```
 
 ```javascript
