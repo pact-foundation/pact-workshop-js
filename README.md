@@ -1086,7 +1086,7 @@ First, in the consumer project we need to tell Pact about our broker. We can use
 
 ```javascript
 // add this under scripts
-"pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx @pact-foundation/absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
+"pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx --yes absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
 ```
 
 Now run
@@ -1324,7 +1324,7 @@ Then publish your pacts:
 ```
 ❯ npm run pact:publish --prefix consumer
 
-> pact-broker publish ./pacts --consumer-app-version="$(npx @pact-foundation/absolute-version)" --auto-detect-version-properties
+> pact-broker publish ./pacts --consumer-app-version="$(npx --yes absolute-version)" --auto-detect-version-properties
 
 Updated FrontendWebsite version 71c1b7-step12+71c1b7.SNAPSHOT.SB-AS-G7GM9F7 with branch step12
 Pact successfully published for FrontendWebsite version 71c1b7-step12+71c1b7.SNAPSHOT.SB-AS-G7GM9F7 and provider ProductService.
