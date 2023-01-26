@@ -1237,17 +1237,17 @@ FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
 All required verification results are published and successful
 ```
 
-## Step 12 - Using a Pactflow Broker
+## Step 12 - Using a PactFlow Broker
 
 In step 11 we've been publishing our pacts from the consumer and provider projects to our locally hosted open source Pact broker.
 
-We can use a managed [Pact Broker](https://pactflow.io) from Pactflow to do this instead.
+We can use a managed [Pact Broker](https://pactflow.io) from PactFlow to do this instead.
 
 Using a hosted pact broker with pactflow, will allow you to concentrate on testing your application without having to worry about managing infrastructure, along with a number of other useful [features](https://pactflow.io/features).
 
 ### Creating a pactflow account
 
-Create a new [Pactflow](https://pactflow.io/pricing) account and signup to the free Starter Plan. You will be emailed a set of credentials to access your account, these credentials are only for accessing the UI.
+Create a new [PactFlow](https://pactflow.io/pricing) account and signup to the free Starter Plan. You will be emailed a set of credentials to access your account, these credentials are only for accessing the UI.
 
 Grab your [API Token](https://docs.pactflow.io/#configuring-your-api-token)(Click on settings -> API Tokens -> Read/write token -> COPY ENV VARS) and set the environment variables in your terminal as follows:
 
