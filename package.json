@@ -8,6 +8,6 @@
     "lint": "concurrently \"cd consumer/ && npx eslint .\" \"cd provider/ && npx eslint .\""
   },
   "dependencies": {
-    "concurrently": "^5.0.2"
+    "concurrently": "^6.2.2"
   }
 }
