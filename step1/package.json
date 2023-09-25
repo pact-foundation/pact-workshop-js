@@ -1,0 +1,12 @@
+{
+  "name": "pact-workshop-js",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm ci --prefix consumer",
+    "start": "npm start --prefix consumer"
+  },
+  "dependencies": {
+    "concurrently": "^5.0.2"
+  }
+}
