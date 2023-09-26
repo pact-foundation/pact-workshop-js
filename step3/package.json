@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "concurrently \"npm ci --prefix consumer\" \"npm ci --prefix provider\"",
+    "postinstall": "concurrently \"npm i --prefix consumer\" \"npm i --prefix provider\"",
     "start": "concurrently \"npm start --prefix consumer\" \"npm start --prefix provider\"",
     "lint": "concurrently \"cd consumer/ && npx eslint .\" \"cd provider/ && npx eslint .\""
   },
   "dependencies": {
-    "concurrently": "^5.0.2"
+    "concurrently": "8.0.1"
   }
 }
