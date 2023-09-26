@@ -48,5 +48,5 @@ export class API {
 }
 
 export default new API(
-  process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001'
+  process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:3001'
 );

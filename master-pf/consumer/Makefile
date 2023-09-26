@@ -40,7 +40,7 @@ ci: test publish_pacts can_i_deploy $(DEPLOY_TARGET)
 # Use this for quick feedback when playing around with your workflows.
 fake_ci: .env
 	@CI=true \
-	REACT_APP_API_BASE_URL=http://localhost:8080 \
+	REACT_APP_API_BASE_URL=http://127.0.0.1:8080 \
 	make ci
 
 publish_pacts: .env

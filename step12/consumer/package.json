@@ -17,7 +17,8 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.1",
     "nock": "^13.3.3",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.1",
+ "cross-env": "^7.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -25,8 +26,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "pretest:pact": "rimraf pacts/*.json",
-    "test:pact": "CI=true react-scripts test --testTimeout=30000 pact.spec.js",
-    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx @pact-foundation/absolute-version)\" --auto-detect-version-properties"
+    "test:pact": "cross-env CI=true react-scripts test --testTimeout=30000 pact.spec.js",
+    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx --yes absolute-version)\" --auto-detect-version-properties"
   },
   "eslintConfig": {
     "extends": [

@@ -198,7 +198,7 @@ Compiled successfully!
 
 You can now view pact-workshop-js in the browser.
 
-  Local:            http://localhost:3000/
+  Local:            http://127.0.0.1:3000/
   On Your Network:  http://192.168.20.17:3000/
 
 Note that the development build is not optimized.
@@ -250,7 +250,8 @@ const provider = new PactV3({
   log: path.resolve(process.cwd(), "logs", "pact.log"),
   logLevel: "warn",
   dir: path.resolve(process.cwd(), "pacts"),
-  spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
+    spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
+  host: "127.0.0.1"
 });
 
 describe("API Pact test", () => {
@@ -339,7 +340,7 @@ To simplify running the tests, add this to `consumer/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
+"test:pact": "cross-env CI=true react-scripts test --testTimeout 30000 pact.spec.js",
 ```
 
 Running this test still passes, but it creates a pact file which we can use to validate our assumptions on the provider side, and have conversation around.
@@ -357,7 +358,7 @@ Time:        2.792s, estimated 3s
 Ran all test suites.
 ```
 
-A pact file should have been generated in *consumer/pacts/frontendwebsite-productservice.json*
+A pact file should have been generated in *consumer/pacts/FrontendWebsite-ProductService.json*
 
 *NOTE*: even if the API client had been graciously provided for us by our Provider Team, it doesn't mean that we shouldn't write contract tests - because the version of the client we have may not always be in sync with the deployed API - and also because we will write tests on the output appropriate to our specific needs.
 
@@ -384,11 +385,11 @@ describe("Pact Verification", () => {
     it("validates the expectations of ProductService", () => {
         const opts = {
             logLevel: "INFO",
-            providerBaseUrl: "http://localhost:8080",
+            providerBaseUrl: "http://127.0.0.1:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
             pactUrls: [
-                path.resolve(__dirname, '../../consumer/pacts/frontendwebsite-productservice.json')
+                path.resolve(__dirname, '../../consumer/pacts/FrontendWebsite-ProductService.json')
             ]
         };
 
@@ -1086,7 +1087,7 @@ First, in the consumer project we need to tell Pact about our broker. We can use
 
 ```javascript
 // add this under scripts
-"pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx --yes absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
+"pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx --yes absolute-version)\" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop"
 ```
 
 Now run
@@ -1120,7 +1121,7 @@ To publish the pacts:
 
 Created FrontendWebsite version 24c0e1-step11+24c0e1.SNAPSHOT.SB-AS-G7GM9F7 with branch step11
 Pact successfully published for FrontendWebsite version 24c0e1-step11+24c0e1.SNAPSHOT.SB-AS-G7GM9F7 and provider ProductService.
-  View the published pact at http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/24c0e1-step11%2B24c0e1.SNAPSHOT.SB-AS-G7GM9F7
+  View the published pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/24c0e1-step11%2B24c0e1.SNAPSHOT.SB-AS-G7GM9F7
   Events detected: contract_published (pact content is the same as previous versions with tags  and no new tags were applied)
   Next steps:
     * Configure separate ProductService pact verification build and webhook to trigger it when the pact content changes. See https://docs.pact.io/go/webhooks
@@ -1128,7 +1129,7 @@ Pact successfully published for FrontendWebsite version 24c0e1-step11+24c0e1.SNA
 
 *NOTE: you would usually only publish pacts from CI. *
 
-Have a browse around the broker on http://localhost:8000 (with username/password: `pact_workshop`/`pact_workshop`) and see your newly published contract!
+Have a browse around the broker on http://127.0.0.1:8000 (with username/password: `pact_workshop`/`pact_workshop`) and see your newly published contract!
 
 ### Verify contracts on Provider
 
@@ -1139,11 +1140,11 @@ In `provider/product/product.pact.test.js`:
 ```javascript
 //replace
 pactUrls: [
-  path.resolve(__dirname, '../pacts/frontendwebsite-productservice.json')
+  path.resolve(__dirname, '../pacts/FrontendWebsite-ProductService.json')
 ],
 
 // with
-pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://localhost:8000",
+pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://127.0.0.1:8000",
 pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
 pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 ```
@@ -1158,7 +1159,7 @@ Let's run the provider verification one last time after this change. It should p
 ```console
 ❯ PACT_BROKER_PUBLISH_VERIFICATION_RESULTS=true npm run test:pact --prefix provider
 
-The pact at http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/80d8e7379fc7d5cfe503665ec1776bfb139aa8cf is being verified because the pact content belongs to the consumer version matching the following criterion:
+The pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/80d8e7379fc7d5cfe503665ec1776bfb139aa8cf is being verified because the pact content belongs to the consumer version matching the following criterion:
     * latest version of FrontendWebsite that has a pact with ProductService (9cd950-step10+9cd950.SNAPSHOT.SB-AS-G7GM9F7)
 
 Verifying a pact between FrontendWebsite and ProductService
@@ -1206,7 +1207,7 @@ You can run the `pact-broker can-i-deploy` checks as follows:
 ```console
 ❯ npx pact-broker can-i-deploy \
                --pacticipant FrontendWebsite \
-               --broker-base-url http://localhost:8000 \
+               --broker-base-url http://127.0.0.1:8000 \
                --broker-username pact_workshop \
                --broker-password pact_workshop \
                --latest
@@ -1223,7 +1224,7 @@ All required verification results are published and successful
 
 ❯ npx pact-broker can-i-deploy \
                 --pacticipant ProductService \
-                --broker-base-url http://localhost:8000 \
+                --broker-base-url http://127.0.0.1:8000 \
                 --broker-username pact_workshop \
                 --broker-password pact_workshop \
                 --latest
@@ -1344,7 +1345,7 @@ In `provider/product/product.pact.test.js`:
 
 ```javascript
 //replace
-pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://localhost:8000",
+pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://127.0.0.1:8000",
 pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
 pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 

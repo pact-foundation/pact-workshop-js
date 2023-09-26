@@ -17,12 +17,13 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.1",
     "nock": "^13.3.3",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.1",
+    "cross-env": "^7.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "CI=true react-scripts test",
+    "test": "cross-env CI=true react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

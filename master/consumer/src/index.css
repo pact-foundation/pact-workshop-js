@@ -11,3 +11,8 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* https://stackoverflow.com/questions/46589819/disable-error-overlay-in-development-mode */
+iframe#webpack-dev-server-client-overlay {
+    display: none;
+  }

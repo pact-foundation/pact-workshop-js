@@ -17,16 +17,17 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.1",
     "nock": "^13.3.3",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.1",
+ "cross-env": "^7.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "CI=true react-scripts test",
+    "test": "cross-env CI=true react-scripts test",
     "eject": "react-scripts eject",
     "pretest:pact": "rimraf pacts/*.json",
-    "test:pact": "CI=true react-scripts test --testTimeout=30000 pact.spec.js",
-    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx --yes @pact-foundation/absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
+    "test:pact": "cross-env CI=true react-scripts test --testTimeout=30000 pact.spec.js",
+    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx --yes absolute-version)\" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop"
   },
   "eslintConfig": {
     "extends": "react-app"

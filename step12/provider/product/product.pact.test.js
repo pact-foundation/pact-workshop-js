@@ -13,7 +13,7 @@ describe("Pact Verification", () => {
     it("validates the expectations of ProductService", () => {
         const opts = {
             logLevel: "INFO",
-            providerBaseUrl: "http://localhost:8080",
+            providerBaseUrl: "http://127.0.0.1:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
             providerVersionTags: ["test"],

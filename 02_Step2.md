@@ -98,7 +98,7 @@ Compiled successfully!
 
 You can now view pact-workshop-js in the browser.
 
-  Local:            http://localhost:3000/
+  Local:            http://127.0.0.1:3000/
   On Your Network:  http://192.168.20.17:3000/
 
 Note that the development build is not optimized.

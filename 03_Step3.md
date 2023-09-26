@@ -34,6 +34,7 @@ const provider = new PactV3({
   logLevel: "warn",
   dir: path.resolve(process.cwd(), "pacts"),
   spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
+  host: "127.0.0.1"
 });
 
 describe("API Pact test", () => {
@@ -122,7 +123,7 @@ To simplify running the tests, add this to `consumer/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
+"test:pact": "cross-env CI=true react-scripts test --testTimeout 30000 pact.spec.js",
 ```
 
 Running this test still passes, but it creates a pact file which we can use to validate our assumptions on the provider side, and have conversation around.
@@ -140,7 +141,7 @@ Time:        2.792s, estimated 3s
 Ran all test suites.
 ```
 
-A pact file should have been generated in *consumer/pacts/frontendwebsite-productservice.json*
+A pact file should have been generated in *consumer/pacts/FrontendWebsite-ProductService.json*
 
 *NOTE*: even if the API client had been graciously provided for us by our Provider Team, it doesn't mean that we shouldn't write contract tests - because the version of the client we have may not always be in sync with the deployed API - and also because we will write tests on the output appropriate to our specific needs.
 
