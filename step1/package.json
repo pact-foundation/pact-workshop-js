@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "npm i --prefix consumer",
+    "postinstall": "npm ci --prefix consumer",
     "start": "npm start --prefix consumer"
   },
   "dependencies": {
-    "concurrently": "8.0.1"
+    "concurrently": "8.2.1"
   }
 }

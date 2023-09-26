@@ -81,6 +81,7 @@ class App extends React.Component {
                 this.determineVisibleProducts();
             })
             .catch(() => {
+                history.pushState({error:"products could not be found"},"productsError")
                 this.setState({error: true})
             });
     }

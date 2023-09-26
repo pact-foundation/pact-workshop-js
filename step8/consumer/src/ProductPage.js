@@ -27,6 +27,7 @@ class ProductPage extends React.Component {
                 product: r
             });
         }).catch(() => {
+            history.pushState({error:`product with ${this.state.product.id} could not be found`},"productsError")
             this.setState({error: true})
         })
     }
