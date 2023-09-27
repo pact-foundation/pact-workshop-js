@@ -29,7 +29,7 @@
     "pretest:pact": "rimraf pacts/*.json",
     "test:pact": "cross-env CI=true react-scripts test --testTimeout=30000 pact.spec.js",
     "test:unit": "cross-env CI=true react-scripts test api.spec.js",
-    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx --yes absolute-version)\" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop"
+    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"1.0.0\" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop"
   },
   "eslintConfig": {
     "extends": "react-app"

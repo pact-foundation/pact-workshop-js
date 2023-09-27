@@ -2,7 +2,6 @@
 define STEP
 	echo "step $$STEP_NO"
 	cd $$STEP_NO
-	npm install
 	npm run $$JOB --prefix $$APPLICATION
 endef
 export STEP
