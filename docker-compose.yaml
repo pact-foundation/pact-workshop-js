@@ -13,7 +13,7 @@ services:
       POSTGRES_DB: postgres
 
   pact-broker:
-    image: pactfoundation/pact-broker
+    image: pactfoundation/pact-broker:latest-multi
     links:
       - postgres
     ports:
@@ -27,3 +27,4 @@ services:
       PACT_BROKER_DATABASE_HOST: postgres
       PACT_BROKER_DATABASE_NAME: postgres
       PACT_BROKER_DATABASE_CONNECT_MAX_RETRIES: "10"
+      PACT_BROKER_PUBLIC_HEARTBEAT: true

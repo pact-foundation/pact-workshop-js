@@ -22,13 +22,25 @@ export class API {
         return `${this.url}${path}`
     }
 
+    generateAuthToken() {
+        return "Bearer " + new Date().toISOString()
+    }
+
     async getAllProducts() {
-        return axios.get(this.withPath("/products"))
+        return axios.get(this.withPath("/products"), {
+            headers: {
+                "Authorization": this.generateAuthToken()
+            }
+        })
             .then(r => r.data);
     }
 
     async getProduct(id) {
-        return axios.get(this.withPath("/products/" + id))
+        return axios.get(this.withPath("/product/" + id), {
+            headers: {
+                "Authorization": this.generateAuthToken()
+            }
+        })
             .then(r => r.data);
     }
 }

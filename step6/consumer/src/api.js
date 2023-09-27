@@ -28,7 +28,7 @@ export class API {
     }
 
     async getProduct(id) {
-        return axios.get(this.withPath("/products/" + id))
+        return axios.get(this.withPath("/product/" + id))
             .then(r => r.data);
     }
 }

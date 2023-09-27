@@ -56,8 +56,6 @@ Time:        2.106s
 Ran all test suites matching /pact.spec.js/i.
 ```
 
-
-
 Now we run the provider tests again with the updated contract:
 
 Run the command:

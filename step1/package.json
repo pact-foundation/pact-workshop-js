@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "npm ci --prefix consumer",
+    "postinstall": "npm i --prefix consumer",
     "start": "npm start --prefix consumer"
   },
   "dependencies": {

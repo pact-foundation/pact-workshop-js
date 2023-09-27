@@ -16,7 +16,10 @@ describe("Pact Verification", () => {
             providerBaseUrl: "http://127.0.0.1:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
-            providerVersionTags: ["test"],
+            providerVersionBranch: "test",
+            consumerVersionSelectors: [{
+                latest: true
+              }],
             pactBrokerUrl :process.env.PACT_BROKER_BASE_URL || 'https://<your_broker_name>.pactflow.io',
             pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
             stateHandlers: {
