@@ -5,7 +5,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-      "start": "node server.js"
+      "start": "node server.js",
+      "create-webhook": "./create_webhook.sh"
     },
     "author": "",
     "license": "ISC",

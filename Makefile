@@ -23,7 +23,7 @@ all:
 	make step3_test_pact_consumer
 	make step4_tests
 
-.PHONY: step1 step2 step3 step4 step5 step6 step7 step8 step9 step10 step11 step12
+.PHONY: step1 step2 step3 step4 step5 step6 step7 step8 step9 step10 step11 step12 step13
 step1_run_consumer:
 	STEP_NO=step1 APPLICATION=consumer JOB=start bash -c "$$STEP"
 
@@ -155,7 +155,7 @@ step10_run_consumer:
 step10_run_provider:
 	STEP_NO=step10 APPLICATION=provider JOB=start bash -c "$$STEP"
 
-step11_tests: step11_test_unit_consumer step11_test_pact_consumer step11_test_pact_publish step11_test_pact_provider
+step11_tests: step11_test_unit_consumer step11_test_pact_consumer step11_test_pact_publish step11_test_pact_provider step11_can_i_deploy_provider step11_can_i_deploy_consumer
 
 step11_test_consumer:
 	STEP_NO=step11 APPLICATION=consumer JOB=test bash -c "$$STEP"
@@ -176,8 +176,16 @@ step11_can_i_deploy_consumer:
 step11_can_i_deploy_provider:
 	STEP_NO=step11 APPLICATION=provider PACTICIPANT=FrontendWebsite bash -c "$$CAN_I_DEPLOY"
 
+## Fake Webhooks
+
 step12_tests: step12_test_unit_consumer step12_test_pact_consumer step12_test_pact_publish step12_test_pact_provider
 
+step12_webhooks: step12_create_webhook step12_test_pact_consumer step12_test_pact_publish
+
+step12_start_broker_webhook_service:
+	STEP_NO=step12 APPLICATION=broker-webhook JOB=start bash -c "$$STEP"
+step12_create_webhook:
+	cd step12/broker-webhook && ./create_webhook.sh
 step12_test_consumer:
 	STEP_NO=step12 APPLICATION=consumer JOB=test bash -c "$$STEP"
 step12_test_unit_consumer:
@@ -192,6 +200,24 @@ step12_run_consumer:
 	STEP_NO=step12 APPLICATION=consumer JOB=start bash -c "$$STEP"
 step12_run_provider:
 	STEP_NO=step12 APPLICATION=provider JOB=start bash -c "$$STEP"
+
+## PactFlow Tokens
+step13_tests: step13_test_unit_consumer step13_test_pact_consumer step13_test_pact_publish step13_test_pact_provider
+
+step13_test_consumer:
+	STEP_NO=step13 APPLICATION=consumer JOB=test bash -c "$$STEP"
+step13_test_unit_consumer:
+	STEP_NO=step13 APPLICATION=consumer JOB=test:unit bash -c "$$STEP"
+step13_test_pact_consumer:
+	STEP_NO=step13 APPLICATION=consumer JOB=test:pact bash -c "$$STEP"
+step13_test_pact_publish:
+	STEP_NO=step13 APPLICATION=consumer JOB=pact:publish bash -c "$$STEP"
+step13_test_pact_provider:
+	STEP_NO=step13 APPLICATION=provider JOB=test:pact bash -c "$$STEP"
+step13_run_consumer:
+	STEP_NO=step13 APPLICATION=consumer JOB=start bash -c "$$STEP"
+step13_run_provider:
+	STEP_NO=step13 APPLICATION=provider JOB=start bash -c "$$STEP"
 
 broker:
 	docker compose up -d

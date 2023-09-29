@@ -19,23 +19,22 @@
     "nock": "13.3.3",
     "rimraf": "5.0.4",
     "cross-env": "7.0.3",
-    "@babel/plugin-proposal-private-property-in-object": "7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "7.21.11",
+    "absolute-version": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "cross-env CI=true react-scripts test",
     "eject": "react-scripts eject",
     "pretest:pact": "rimraf pacts/*.json",
     "test:pact": "cross-env CI=true react-scripts test --testTimeout=30000 pact.spec.js",
     "test:unit": "cross-env CI=true react-scripts test api.spec.js",
-    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"1.0.0\" --auto-detect-version-properties"
+    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"1.0.1\" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop",
+    "pact:publish2": "pact-broker publish ./pacts --consumer-app-version=\"$(./node_modules/.bin/absolute-version-from-git-tag)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "extends": "react-app"
   },
   "browserslist": {
     "production": [
