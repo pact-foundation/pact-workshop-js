@@ -21,6 +21,7 @@ This workshop should take from 1 to 2 hours, depending on how deep you want to g
 - [step 9: **pact test**](https://github.com/pact-foundation/pact-workshop-js/tree/step9#step-9---implement-authorisation-on-the-provider): Update API to handle `401` case
 - [step 10: **request filters**](https://github.com/pact-foundation/pact-workshop-js/tree/step10#step-10---request-filters-on-the-provider): Fix the provider to support the `401` case
 - [step 11: **pact broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker): Implement a broker workflow for integration with CI/CD
+- [step 12: **pactflow broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step12#step-12---using-a-pactflow-broker): Implement a managed pactflow workflow for integration with CI/CD
 
 _NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally. For example, to move to step 2 run the following: `git checkout step2`_
 
@@ -197,7 +198,7 @@ Compiled successfully!
 
 You can now view pact-workshop-js in the browser.
 
-  Local:            http://localhost:3000/
+  Local:            http://127.0.0.1:3000/
   On Your Network:  http://192.168.20.17:3000/
 
 Note that the development build is not optimized.
@@ -250,6 +251,7 @@ const provider = new PactV3({
   logLevel: "warn",
   dir: path.resolve(process.cwd(), "pacts"),
   spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
+  host: "127.0.0.1"
 });
 
 describe("API Pact test", () => {
@@ -338,7 +340,7 @@ To simplify running the tests, add this to `consumer/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
+"test:pact": "cross-env CI=true react-scripts test --testTimeout 30000 pact.spec.js",
 ```
 
 Running this test still passes, but it creates a pact file which we can use to validate our assumptions on the provider side, and have conversation around.
@@ -356,7 +358,7 @@ Time:        2.792s, estimated 3s
 Ran all test suites.
 ```
 
-A pact file should have been generated in *consumer/pacts/frontendwebsite-productservice.json*
+A pact file should have been generated in *consumer/pacts/FrontendWebsite-ProductService.json*
 
 *NOTE*: even if the API client had been graciously provided for us by our Provider Team, it doesn't mean that we shouldn't write contract tests - because the version of the client we have may not always be in sync with the deployed API - and also because we will write tests on the output appropriate to our specific needs.
 
@@ -383,11 +385,11 @@ describe("Pact Verification", () => {
     it("validates the expectations of ProductService", () => {
         const opts = {
             logLevel: "INFO",
-            providerBaseUrl: "http://localhost:8080",
+            providerBaseUrl: "http://127.0.0.1:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
             pactUrls: [
-                path.resolve(__dirname, '../../consumer/pacts/frontendwebsite-productservice.json')
+                path.resolve(__dirname, '../../consumer/pacts/FrontendWebsite-ProductService.json')
             ]
         };
 
