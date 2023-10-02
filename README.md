@@ -671,7 +671,7 @@ Failures:
            expected 404 but was 200
 ```
 
-We expected this failure, because the product we are requesing does in fact exist! What we want to test for, is what happens if there is a different *state* on the Provider. This is what is referred to as "Provider states", and how Pact gets around test ordering and related issues.
+We expected this failure, because the product we are requesting does in fact exist! What we want to test for, is what happens if there is a different *state* on the Provider. This is what is referred to as "Provider states", and how Pact gets around test ordering and related issues.
 
 We could resolve this by updating our consumer test to use a known non-existent product, but it's worth understanding how Provider states work more generally.
 
