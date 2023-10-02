@@ -1238,7 +1238,129 @@ FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
 All required verification results are published and successful
 ```
 
-## Step 12 - Using a PactFlow Broker
+## Step 12 - Using Webhooks
+
+**honours course**
+
+When a consumer contract is published, we want to trigger a provider build, in order to verify the contract.
+
+We can simulate this locally and explore the techniques involved.
+
+Start the Pact Broker if its not already running
+
+1. `docker compose up -d`
+
+Start the fake broker webhook service
+
+1. `npm run start --prefix broker-webhook`
+
+```console
+
+> broker-webhook@1.0.0 start
+> node server.js
+
+## CI Simulator ## Broker webhook is listening on port 9090...
+```
+
+Publish a webhook to our Pact broker
+
+1. `npm run create-webhook --prefix broker-webhook`
+
+```sh
+curl http://host.docker.internal:8000/webhooks \
+    -X POST --user pact_workshop:pact_workshop \
+    -H "Content-Type: application/json" -d @broker-create-body.json -v
+```
+
+This will send the following payload.
+
+```json
+{
+"events": [
+  {
+    "name": "contract_content_changed"
+  }
+],
+"request": {
+  "method": "POST",
+  "url": "http://host.docker.internal:9090",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": {
+    "state": "${pactbroker.githubVerificationStatus}",
+    "description": "Pact Verification Tests ${pactbroker.providerVersionTags}",
+    "context": "${pactbroker.providerName}",
+    "target_url": "${pactbroker.verificationResultUrl}"
+  }
+}
+}
+```
+
+```console
+> broker-webhook@1.0.0 create-webhook
+> ./create_webhook.sh
+
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 127.0.0.1:8000...
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+* Server auth using Basic with user 'pact_workshop'
+> POST /webhooks HTTP/1.1
+> Host: localhost:8000
+> Authorization: Basic cGFjdF93b3Jrc2hvcDpwYWN0X3dvcmtzaG9w
+> User-Agent: curl/8.1.2
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 511
+> 
+< HTTP/1.1 201 Created
+< Vary: Accept
+< Content-Type: application/hal+json;charset=utf-8
+< Location: http://localhost:8000/webhooks/QxdSU5uCDllJTLDS_iLbNg
+< Date: Fri, 29 Sep 2023 14:28:43 GMT
+< Server: Webmachine-Ruby/2.0.0 Rack/1.3
+< X-Pact-Broker-Version: 2.107.1
+< X-Content-Type-Options: nosniff
+< Content-Length: 926
+< 
+* Connection #0 to host localhost left intact
+{"uuid":"QxdSU5uCDllJTLDS_iLbNg","description":"POST host.docker.internal","enabled":true,"request":{"method":"POST","url":"http://host.docker.internal:9090","headers":{"Content-Type":"application/json"},"body":{"state":"${pactbroker.githubVerificationStatus}","description":"Pact Verification Tests ${pactbroker.providerVersionTags}","context":"${pactbroker.providerName}","target_url":"${pactbroker.verificationResultUrl}"}},"events":[{"name":"contract_content_changed"}],"createdAt":"2023-09-29T14:28:43+00:00","_links":{"self":{"title":"POST host.docker.internal","href":"http://localhost:8000/webhooks/QxdSU5uCDllJTLDS_iLbNg"},"pb:execute":{"title":"Test the execution of the webhook with the latest matching pact or verification by sending a POST request to this URL","href":"http://localhost:8000/webhooks/QxdSU5uCDllJTLDS_iLbNg/execute"},"pb:webhooks":{"title":"All webhooks","href":"http://localhost:8000/webhooks"}}}% 
+```
+
+Run the consumer pact tests
+
+1. `npm run test:pact --prefix consumer`
+
+Publish the consumer pact tests
+
+1. `npm run pact:publish --prefix consumer`
+
+```console
+> consumer@0.1.0 pact:publish
+> pact-broker publish ./pacts --consumer-app-version="1.0.1" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop
+
+Created FrontendWebsite version 1.0.1 with branch all_steps
+Pact successfully published for FrontendWebsite version 1.0.1 and provider ProductService.
+  View the published pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/1.0.1
+  Events detected: contract_published, contract_content_changed (first time untagged pact published)
+  Webhook QxdSU5uCDllJTLDS_iLbNg triggered for event contract_content_changed.
+    View logs at http://127.0.0.1:8000/triggered-webhooks/f8299b7a-53c4-4f5f-b4a8-7f87dbee1bdf/logs
+  Next steps:
+    * Add Pact verification tests to the ProductService build. See https://docs.pact.io/go/provider_verification
+```
+
+This will trigger the provider tests.
+
+```console
+## CI Simulator ## Broker webhook is listening on port 9090...
+Got webhook {"state":"pending","description":"Pact Verification Tests ","context":"ProductService","target_url":""} 
+ Triggering provider tests...
+provider-verification: 
+> product-service@1.0.0 test:pact
+> jest --testTimeout 30000 --testMatch "**/*.pact.test.js"
+```
+
+## Step 13 - Using a PactFlow Broker
 
 In step 11 we've been publishing our pacts from the consumer and provider projects to our locally hosted open source Pact broker.
 
