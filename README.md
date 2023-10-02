@@ -26,8 +26,6 @@ This workshop should take from 1 to 2 hours, depending on how deep you want to g
 
 _NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally. For example, to move to step 2 run the following: `git checkout step2`_
 
-_NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally. For example, to move to step 2 run the following: `git checkout step2`_
-
 ## Learning objectives
 
 If running this as a team workshop format, you may want to take a look through the [learning objectives](./LEARNING.md).
