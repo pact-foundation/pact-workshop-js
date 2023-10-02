@@ -1253,12 +1253,22 @@ When a consumer contract is published, we want to trigger a provider build, in o
 
 We can simulate this locally and explore the techniques involved.
 
-Start the Pact Broker if its not already running
+Update your docker-compose file to support webhooks running from your local machine
+
+1. in `docker-compose.yaml`
+
+```yml
+      PACT_BROKER_WEBHOOK_SCHEME_WHITELIST: http
+      PACT_BROKER_WEBHOOK_HOST_WHITELIST: host.docker.internal
+```
+
+Recreate or Start the Pact Broker if its not already running
 
 1. `docker compose up -d`
 
 Start the fake broker webhook service
 
+1. `npm install` - we need to install the dependencies for a fake broker-webhook service.
 1. `npm run start --prefix broker-webhook`
 
 ```console
@@ -1365,6 +1375,58 @@ Got webhook {"state":"pending","description":"Pact Verification Tests ","context
 provider-verification: 
 > product-service@1.0.0 test:pact
 > jest --testTimeout 30000 --testMatch "**/*.pact.test.js"
+```
+
+Try publishing the contract again. You'll note the broker webhook does not trigger a 2nd time as the content has not changed.
+
+```console
+> consumer@0.1.0 pact:publish
+> pact-broker publish ./pacts --consumer-app-version="1.0.1" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop
+
+Updated FrontendWebsite version 1.0.1 with branch step12
+Pact successfully republished for FrontendWebsite version 1.0.1 and provider ProductService with no content changes.
+  View the published pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/1.0.1
+  Events detected: contract_published
+  No enabled webhooks found for the detected events
+
+```
+
+Try updating the version of the contract, in `consumer/package.json`
+
+```json
+    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"1.0.2\" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop",
+```
+
+You'll again note, that as the contract version has changed, but the contents have not changed, since the last verification, the Pact Broker is aware of this, pre-verifying the Pact without needing to trigger the provider build.
+
+```
+> consumer@0.1.0 pact:publish
+> pact-broker publish ./pacts --consumer-app-version="1.0.2" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop
+
+Created FrontendWebsite version 1.0.2 with branch step12
+Pact successfully published for FrontendWebsite version 1.0.2 and provider ProductService.
+  View the published pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/1.0.2
+  Events detected: contract_published (pact content is the same as previous versions with tags  and no new tags were applied)
+  No enabled webhooks found for the detected events
+```
+
+If you update the Pact contracts and attempt to republish under an existing version number, you will be stopped by the Pact Broker.
+
+This ensures contracts remain consistent once published.
+
+```console
+> consumer@0.1.0 pact:publish
+> pact-broker publish ./pacts --consumer-app-version="1.0.2" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop
+
+Cannot change the content of the pact for ProductService version 1.0.2 and provider ProductService, as race conditions will cause unreliable results for can-i-deploy. Each pact must be published with a unique consumer version number. Some Pact libraries generate random data when a concrete value for a type matcher is not specified, and this can cause the contract to mutate - ensure you have given example values for all type matchers. For more information see https://docs.pact.io/go/versioning
+     ... ,
+     {
+       "request": {
+-        "path": "/product/10"
++        "path": "/product/11"
+       }
+     },
+     ... ,
 ```
 
 *Optional - Move on to [step 13](https://github.com/pact-foundation/pact-workshop-js/tree/step13#step-13---using-a-pactflow-broker)* for integrating with a PactFlow Broker
@@ -1511,6 +1573,7 @@ As per step 11, we can use the `can-i-deploy` command to gate releases.
 You can run the `pact-broker can-i-deploy` checks as follows:
 
 ```console
+❯ cd consumer
 ❯ pact-broker can-i-deploy \
                --pacticipant FrontendWebsite \
                --latest
@@ -1525,6 +1588,7 @@ All required verification results are published and successful
 
 ----------------------------
 
+❯ cd provider
 ❯ pact-broker can-i-deploy \
                 --pacticipant ProductService \
                 --latest
