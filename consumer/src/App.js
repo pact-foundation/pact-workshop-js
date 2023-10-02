@@ -35,7 +35,7 @@ function ProductTableRow(props) {
 ProductTableRow.propTypes = productPropTypes;
 
 function ProductTable(props) {
-    let products = props.products.map(p => (
+    const products = props.products.map(p => (
         <ProductTableRow key={p.id} product={p}/>
     ));
     return (
@@ -81,6 +81,7 @@ class App extends React.Component {
                 this.determineVisibleProducts();
             })
             .catch(() => {
+                history.pushState({error:"products could not be found"},"productsError")
                 this.setState({error: true})
             });
     }
