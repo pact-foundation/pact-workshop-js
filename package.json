@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "concurrently \"npm ci --prefix consumer\" \"npm ci --prefix provider\" \"npm ci --prefix broker-webhook\"",
     "start": "concurrently \"npm start --prefix consumer\" \"npm start --prefix provider\"",
     "start:broker-webhook": "concurrently \"npm start --prefix broker-webhook\"",
     "lint": "concurrently \"cd consumer/ && npx eslint .\" \"cd provider/ && npx eslint .\""
