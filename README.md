@@ -21,8 +21,18 @@ This workshop should take from 1 to 2 hours, depending on how deep you want to g
 - [step 9: **pact test**](https://github.com/pact-foundation/pact-workshop-js/tree/step9#step-9---implement-authorisation-on-the-provider): Update API to handle `401` case
 - [step 10: **request filters**](https://github.com/pact-foundation/pact-workshop-js/tree/step10#step-10---request-filters-on-the-provider): Fix the provider to support the `401` case
 - [step 11: **pact broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker): Implement a broker workflow for integration with CI/CD
+- [step 12: **broker webhooks**](https://github.com/pact-foundation/pact-workshop-js/tree/step12#step-12---using-webhooks): Trigger provider workflows when contracts change, via webhooks
+- [step 13: **pactflow broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step13#step-13---using-a-pactflow-broker): Implement a managed pactflow workflow for integration with CI/CD
 
-_NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally. For example, to move to step 2 run the following: `git checkout step2`_
+_NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally._
+
+_EG: Move to step 2:_
+
+_`git checkout step2`_
+
+_`npm install`_
+
+<hr/>
 
 ## Learning objectives
 
@@ -101,10 +111,18 @@ We can run the client with `npm start --prefix consumer` - it should fail with t
 
 ## Step 2 - Client Tested but integration fails
 
+_NOTE: Move to step 2:_
+
+_`git checkout step2`_
+
+_`npm install`_
+
+<hr/>
+
 Now lets create a basic test for our API client. We're going to check 2 things:
 
 1. That our client code hits the expected endpoint
-1. That the response is marshalled into an object that is usable, with the correct ID
+2. That the response is marshalled into an object that is usable, with the correct ID
 
 You can see the client interface test we created in `consumer/src/api.spec.js`:
 
@@ -197,7 +215,7 @@ Compiled successfully!
 
 You can now view pact-workshop-js in the browser.
 
-  Local:            http://localhost:3000/
+  Local:            http://127.0.0.1:3000/
   On Your Network:  http://192.168.20.17:3000/
 
 Note that the development build is not optimized.
@@ -217,6 +235,14 @@ We need to have a conversation about what the endpoint should be, but first...
 *Move on to [step 3](https://github.com/pact-foundation/pact-workshop-js/tree/step3#step-3---pact-to-the-rescue)*
 
 ## Step 3 - Pact to the rescue
+
+_NOTE: Move to step 3:_
+
+_`git checkout step3`_
+
+_`npm install`_
+
+<hr/>
 
 Unit tests are written and executed in isolation of any other services. When we write tests for code that talk to other services, they are built on trust that the contracts are upheld. There is no way to validate that the consumer and provider can communicate correctly.
 
@@ -250,6 +276,7 @@ const provider = new PactV3({
   logLevel: "warn",
   dir: path.resolve(process.cwd(), "pacts"),
   spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
+  host: "127.0.0.1"
 });
 
 describe("API Pact test", () => {
@@ -338,7 +365,7 @@ To simplify running the tests, add this to `consumer/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
+"test:pact": "cross-env CI=true react-scripts test --testTimeout 30000 pact.spec.js",
 ```
 
 Running this test still passes, but it creates a pact file which we can use to validate our assumptions on the provider side, and have conversation around.
@@ -356,13 +383,21 @@ Time:        2.792s, estimated 3s
 Ran all test suites.
 ```
 
-A pact file should have been generated in *consumer/pacts/frontendwebsite-productservice.json*
+A pact file should have been generated in *consumer/pacts/FrontendWebsite-ProductService.json*
 
 *NOTE*: even if the API client had been graciously provided for us by our Provider Team, it doesn't mean that we shouldn't write contract tests - because the version of the client we have may not always be in sync with the deployed API - and also because we will write tests on the output appropriate to our specific needs.
 
 *Move on to [step 4](https://github.com/pact-foundation/pact-workshop-js/tree/step4#step-4---verify-the-provider)*
 
 ## Step 4 - Verify the provider
+
+_NOTE: Move to step 4:_
+
+_`git checkout step4`_
+
+_`npm install`_
+
+<hr/>
 
 We need to make the pact file (the contract) that was produced from the consumer test available to the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract. For now, we'll hard code the path to where it is saved in the consumer test, in step 11 we investigate a better way of doing this.
 
@@ -383,11 +418,11 @@ describe("Pact Verification", () => {
     it("validates the expectations of ProductService", () => {
         const opts = {
             logLevel: "INFO",
-            providerBaseUrl: "http://localhost:8080",
+            providerBaseUrl: "http://127.0.0.1:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
             pactUrls: [
-                path.resolve(__dirname, '../../consumer/pacts/frontendwebsite-productservice.json')
+                path.resolve(__dirname, '../../consumer/pacts/FrontendWebsite-ProductService.json')
             ]
         };
 
@@ -404,7 +439,7 @@ To simplify running the tests, add this to `provider/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "npx jest --testTimeout=30000 --testMatch \"**/*.pact.test.js\""
+"test:pact": "jest --testTimeout=30000 --testMatch \"**/*.pact.test.js\""
 ```
 
 We now need to validate the pact generated by the consumer is valid, by executing it against the running service provider, which should fail:
@@ -449,6 +484,14 @@ The correct endpoint which the consumer should call is `/product/{id}`.
 Move on to [step 5](https://github.com/pact-foundation/pact-workshop-js/tree/step5#step-5---back-to-the-client-we-go)
 
 ## Step 5 - Back to the client we go
+
+_NOTE: Move to step 5:_
+
+_`git checkout step5`_
+
+_`npm install`_
+
+<hr/>
 
 We now need to update the consumer client and tests to hit the correct product path.
 
@@ -535,6 +578,14 @@ Yay - green ✅!
 Move on to [step 6](https://github.com/pact-foundation/pact-workshop-js/tree/step6#step-6---consumer-updates-contract-for-missing-products)
 
 ## Step 6 - Consumer updates contract for missing products
+
+_NOTE: Move to step 6:_
+
+_`git checkout step6`_
+
+_`npm install`_
+
+<hr/>
 
 We're now going to add 2 more scenarios for the contract
 
@@ -675,6 +726,14 @@ We could resolve this by updating our consumer test to use a known non-existent 
 *Move on to [step 7](https://github.com/pact-foundation/pact-workshop-js/tree/step7#step-7---adding-the-missing-states)*
 
 ## Step 7 - Adding the missing states
+
+_NOTE: Move to step 7:_
+
+_`git checkout step7`_
+
+_`npm install`_
+
+<hr/>
 
 Our code already deals with missing users and sends a `404` response, however our test data fixture always has product ID 10 and 11 in our database.
 
