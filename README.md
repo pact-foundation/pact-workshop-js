@@ -21,8 +21,18 @@ This workshop should take from 1 to 2 hours, depending on how deep you want to g
 - [step 9: **pact test**](https://github.com/pact-foundation/pact-workshop-js/tree/step9#step-9---implement-authorisation-on-the-provider): Update API to handle `401` case
 - [step 10: **request filters**](https://github.com/pact-foundation/pact-workshop-js/tree/step10#step-10---request-filters-on-the-provider): Fix the provider to support the `401` case
 - [step 11: **pact broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step11#step-11---using-a-pact-broker): Implement a broker workflow for integration with CI/CD
+- [step 12: **broker webhooks**](https://github.com/pact-foundation/pact-workshop-js/tree/step12#step-12---using-webhooks): Trigger provider workflows when contracts change, via webhooks
+- [step 13: **pactflow broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step13#step-13---using-a-pactflow-broker): Implement a managed pactflow workflow for integration with CI/CD
 
-_NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally. For example, to move to step 2 run the following: `git checkout step2`_
+_NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally._
+
+_EG: Move to step 2:_
+
+_`git checkout step2`_
+
+_`npm install`_
+
+<hr/>
 
 ## Learning objectives
 
@@ -101,10 +111,18 @@ We can run the client with `npm start --prefix consumer` - it should fail with t
 
 ## Step 2 - Client Tested but integration fails
 
+_NOTE: Move to step 2:_
+
+_`git checkout step2`_
+
+_`npm install`_
+
+<hr/>
+
 Now lets create a basic test for our API client. We're going to check 2 things:
 
 1. That our client code hits the expected endpoint
-1. That the response is marshalled into an object that is usable, with the correct ID
+2. That the response is marshalled into an object that is usable, with the correct ID
 
 You can see the client interface test we created in `consumer/src/api.spec.js`:
 
@@ -197,7 +215,7 @@ Compiled successfully!
 
 You can now view pact-workshop-js in the browser.
 
-  Local:            http://localhost:3000/
+  Local:            http://127.0.0.1:3000/
   On Your Network:  http://192.168.20.17:3000/
 
 Note that the development build is not optimized.
@@ -217,6 +235,14 @@ We need to have a conversation about what the endpoint should be, but first...
 *Move on to [step 3](https://github.com/pact-foundation/pact-workshop-js/tree/step3#step-3---pact-to-the-rescue)*
 
 ## Step 3 - Pact to the rescue
+
+_NOTE: Move to step 3:_
+
+_`git checkout step3`_
+
+_`npm install`_
+
+<hr/>
 
 Unit tests are written and executed in isolation of any other services. When we write tests for code that talk to other services, they are built on trust that the contracts are upheld. There is no way to validate that the consumer and provider can communicate correctly.
 
@@ -250,6 +276,7 @@ const provider = new PactV3({
   logLevel: "warn",
   dir: path.resolve(process.cwd(), "pacts"),
   spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
+  host: "127.0.0.1"
 });
 
 describe("API Pact test", () => {
@@ -338,7 +365,7 @@ To simplify running the tests, add this to `consumer/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "CI=true react-scripts test --testTimeout 30000 pact.spec.js",
+"test:pact": "cross-env CI=true react-scripts test --testTimeout 30000 pact.spec.js",
 ```
 
 Running this test still passes, but it creates a pact file which we can use to validate our assumptions on the provider side, and have conversation around.
@@ -356,13 +383,21 @@ Time:        2.792s, estimated 3s
 Ran all test suites.
 ```
 
-A pact file should have been generated in *consumer/pacts/frontendwebsite-productservice.json*
+A pact file should have been generated in *consumer/pacts/FrontendWebsite-ProductService.json*
 
 *NOTE*: even if the API client had been graciously provided for us by our Provider Team, it doesn't mean that we shouldn't write contract tests - because the version of the client we have may not always be in sync with the deployed API - and also because we will write tests on the output appropriate to our specific needs.
 
 *Move on to [step 4](https://github.com/pact-foundation/pact-workshop-js/tree/step4#step-4---verify-the-provider)*
 
 ## Step 4 - Verify the provider
+
+_NOTE: Move to step 4:_
+
+_`git checkout step4`_
+
+_`npm install`_
+
+<hr/>
 
 We need to make the pact file (the contract) that was produced from the consumer test available to the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract. For now, we'll hard code the path to where it is saved in the consumer test, in step 11 we investigate a better way of doing this.
 
@@ -383,11 +418,11 @@ describe("Pact Verification", () => {
     it("validates the expectations of ProductService", () => {
         const opts = {
             logLevel: "INFO",
-            providerBaseUrl: "http://localhost:8080",
+            providerBaseUrl: "http://127.0.0.1:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
             pactUrls: [
-                path.resolve(__dirname, '../../consumer/pacts/frontendwebsite-productservice.json')
+                path.resolve(__dirname, '../../consumer/pacts/FrontendWebsite-ProductService.json')
             ]
         };
 
@@ -404,7 +439,7 @@ To simplify running the tests, add this to `provider/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "npx jest --testTimeout=30000 --testMatch \"**/*.pact.test.js\""
+"test:pact": "jest --testTimeout=30000 --testMatch \"**/*.pact.test.js\""
 ```
 
 We now need to validate the pact generated by the consumer is valid, by executing it against the running service provider, which should fail:
@@ -449,6 +484,14 @@ The correct endpoint which the consumer should call is `/product/{id}`.
 Move on to [step 5](https://github.com/pact-foundation/pact-workshop-js/tree/step5#step-5---back-to-the-client-we-go)
 
 ## Step 5 - Back to the client we go
+
+_NOTE: Move to step 5:_
+
+_`git checkout step5`_
+
+_`npm install`_
+
+<hr/>
 
 We now need to update the consumer client and tests to hit the correct product path.
 
@@ -535,6 +578,14 @@ Yay - green ✅!
 Move on to [step 6](https://github.com/pact-foundation/pact-workshop-js/tree/step6#step-6---consumer-updates-contract-for-missing-products)
 
 ## Step 6 - Consumer updates contract for missing products
+
+_NOTE: Move to step 6:_
+
+_`git checkout step6`_
+
+_`npm install`_
+
+<hr/>
 
 We're now going to add 2 more scenarios for the contract
 
@@ -676,6 +727,14 @@ We could resolve this by updating our consumer test to use a known non-existent 
 
 ## Step 7 - Adding the missing states
 
+_NOTE: Move to step 7:_
+
+_`git checkout step7`_
+
+_`npm install`_
+
+<hr/>
+
 Our code already deals with missing users and sends a `404` response, however our test data fixture always has product ID 10 and 11 in our database.
 
 In this step, we will add a state handler (`stateHandlers`) to our provider Pact verifications, which will update the state of our data store depending on which states the consumers require.
@@ -753,6 +812,14 @@ _NOTE_: The states are not necessarily a 1 to 1 mapping with the consumer contra
 *Move on to [step 8](https://github.com/pact-foundation/pact-workshop-js/tree/step8#step-8---authorization)*
 
 ## Step 8 - Authorization
+
+_NOTE: Move to step 8:_
+
+_`git checkout step8`_
+
+_`npm install`_
+
+<hr/>
 
 It turns out that not everyone should be able to use the API. After a discussion with the team, it was decided that a time-bound bearer token would suffice. The token must be in `yyyy-MM-ddTHHmm` format and within 1 hour of the current time.
 
@@ -915,6 +982,14 @@ Move on to [step 9](https://github.com/pact-foundation/pact-workshop-js/tree/ste
 
 ## Step 9 - Implement authorisation on the provider
 
+_NOTE: Move to step 9:_
+
+_`git checkout step9`_
+
+_`npm install`_
+
+<hr/>
+
 We will add a middleware to check the Authorization header and deny the request with `401` if the token is older than 1 hour.
 
 In `provider/middleware/auth.middleware.js`
@@ -1026,6 +1101,14 @@ Oh, dear. _More_ tests are failing. Can you understand why?
 
 ## Step 10 - Request Filters on the Provider
 
+_NOTE: Move to step 10:_
+
+_`git checkout step10`_
+
+_`npm install`_
+
+<hr/>
+
 Because our pact file has static data in it, our bearer token is now out of date, so when Pact verification passes it to the Provider we get a `401`. There are multiple ways to resolve this - mocking or stubbing out the authentication component is a common one. In our use case, we are going to use a process referred to as _Request Filtering_, using a `RequestFilter`.
 
 _NOTE_: This is an advanced concept and should be used carefully, as it has the potential to invalidate a contract by bypassing its constraints. See https://github.com/DiUS/pact-jvm/blob/master/provider/junit/README.md#modifying-the-requests-before-they-are-sent for more details on this.
@@ -1063,6 +1146,14 @@ We can now run the Provider tests
 
 ## Step 11 - Using a Pact Broker
 
+_NOTE: Move to step 11:_
+
+_`git checkout step11`_
+
+_`npm install`_
+
+<hr/>
+
 ![Broker collaboration Workflow](diagrams/workshop_step10_broker.svg)
 
 We've been publishing our pacts from the consumer project by essentially sharing the file system with the provider. But this is not very manageable when you have multiple teams contributing to the code base, and pushing to CI. We can use a [Pact Broker](https://pactflow.io) to do this instead.
@@ -1085,7 +1176,7 @@ First, in the consumer project we need to tell Pact about our broker. We can use
 
 ```javascript
 // add this under scripts
-"pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"$(npx @pact-foundation/absolute-version)\" --auto-detect-version-properties --broker-base-url=http://localhost:8000 --broker-username pact_workshop --broker-password pact_workshop"
+"pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"1.0.0\" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop"
 ```
 
 Now run
@@ -1119,7 +1210,7 @@ To publish the pacts:
 
 Created FrontendWebsite version 24c0e1-step11+24c0e1.SNAPSHOT.SB-AS-G7GM9F7 with branch step11
 Pact successfully published for FrontendWebsite version 24c0e1-step11+24c0e1.SNAPSHOT.SB-AS-G7GM9F7 and provider ProductService.
-  View the published pact at http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/24c0e1-step11%2B24c0e1.SNAPSHOT.SB-AS-G7GM9F7
+  View the published pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/24c0e1-step11%2B24c0e1.SNAPSHOT.SB-AS-G7GM9F7
   Events detected: contract_published (pact content is the same as previous versions with tags  and no new tags were applied)
   Next steps:
     * Configure separate ProductService pact verification build and webhook to trigger it when the pact content changes. See https://docs.pact.io/go/webhooks
@@ -1127,7 +1218,7 @@ Pact successfully published for FrontendWebsite version 24c0e1-step11+24c0e1.SNA
 
 *NOTE: you would usually only publish pacts from CI. *
 
-Have a browse around the broker on http://localhost:8000 (with username/password: `pact_workshop`/`pact_workshop`) and see your newly published contract!
+Have a browse around the broker on http://127.0.0.1:8000 (with username/password: `pact_workshop`/`pact_workshop`) and see your newly published contract!
 
 ### Verify contracts on Provider
 
@@ -1138,11 +1229,11 @@ In `provider/product/product.pact.test.js`:
 ```javascript
 //replace
 pactUrls: [
-  path.resolve(__dirname, '../pacts/frontendwebsite-productservice.json')
+  path.resolve(__dirname, '../pacts/FrontendWebsite-ProductService.json')
 ],
 
 // with
-pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://localhost:8000",
+pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://127.0.0.1:8000",
 pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
 pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
 ```
@@ -1157,7 +1248,7 @@ Let's run the provider verification one last time after this change. It should p
 ```console
 ❯ PACT_BROKER_PUBLISH_VERIFICATION_RESULTS=true npm run test:pact --prefix provider
 
-The pact at http://localhost:8000/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/80d8e7379fc7d5cfe503665ec1776bfb139aa8cf is being verified because the pact content belongs to the consumer version matching the following criterion:
+The pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/80d8e7379fc7d5cfe503665ec1776bfb139aa8cf is being verified because the pact content belongs to the consumer version matching the following criterion:
     * latest version of FrontendWebsite that has a pact with ProductService (9cd950-step10+9cd950.SNAPSHOT.SB-AS-G7GM9F7)
 
 Verifying a pact between FrontendWebsite and ProductService
@@ -1198,14 +1289,19 @@ This is one of the Broker's more powerful features. Referred to as [Verification
 
 ### Can I deploy?
 
-With just a simple use of the `pact-broker` [can-i-deploy tool](https://docs.pact.io/pact_broker/advanced_topics/provider_verification_results) - the Broker will determine if a consumer or provider is safe to release to the specified environment.
+With just a simple use of the `pact-broker` [can-i-deploy tool](https://docs.pact.io/pact_broker/can_i_deploy) - the Broker will determine if a consumer or provider is safe to release to the specified environment.
+
+In this example, we will use the [pact-cli](https://docs.pact.io/implementation_guides/cli#distributions) tools which are contained in the pact-js package.
+
+This is why we use `npx` in our example. Ensure you are in the `consumer` or `provider` folder. Alternatively you can download the cli tools, to your machine and make it globally available or use it from a Docker container.
 
 You can run the `pact-broker can-i-deploy` checks as follows:
 
 ```console
+❯ cd consumer
 ❯ npx pact-broker can-i-deploy \
                --pacticipant FrontendWebsite \
-               --broker-base-url http://localhost:8000 \
+               --broker-base-url http://127.0.0.1:8000 \
                --broker-username pact_workshop \
                --broker-password pact_workshop \
                --latest
@@ -1220,9 +1316,10 @@ All required verification results are published and successful
 
 ----------------------------
 
+❯ cd consumer
 ❯ npx pact-broker can-i-deploy \
                 --pacticipant ProductService \
-                --broker-base-url http://localhost:8000 \
+                --broker-base-url http://127.0.0.1:8000 \
                 --broker-username pact_workshop \
                 --broker-password pact_workshop \
                 --latest
@@ -1236,175 +1333,201 @@ FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
 All required verification results are published and successful
 ```
 
-## Step 12 - Using a Pactflow Broker
+That's it - you're now a Pact pro. Go build 🔨
 
-In step 11 we've been publishing our pacts from the consumer and provider projects to our locally hosted open source Pact broker.
+If you have extra time, why not try out Pact Webhooks
 
-We can use a managed [Pact Broker](https://pactflow.io) from Pactflow to do this instead.
+*Move on to [step 12](https://github.com/pact-foundation/pact-workshop-js/tree/step12#step-12---using-webhooks)*
+## Step 12 - Using Webhooks
 
-Using a hosted pact broker with pactflow, will allow you to concentrate on testing your application without having to worry about managing infrastructure, along with a number of other useful [features](https://pactflow.io/features).
+_NOTE: Move to step 12:_
 
-### Creating a pactflow account
+_`git checkout step12`_
 
-Create a new [Pactflow](https://pactflow.io/pricing) account and signup to the free Starter Plan. You will be emailed a set of credentials to access your account, these credentials are only for accessing the UI.
+_`npm install`_
 
-Grab your [API Token](https://docs.pactflow.io/#configuring-your-api-token)(Click on settings -> API Tokens -> Read/write token -> COPY ENV VARS) and set the environment variables in your terminal as follows:
+<hr/>
 
+**honours course**
+
+When a consumer contract is published, we want to trigger a provider build, in order to verify the contract.
+
+We can simulate this locally and explore the techniques involved.
+
+Update your docker-compose file to support webhooks running from your local machine
+
+1. in `docker-compose.yaml`
+
+```yml
+      PACT_BROKER_WEBHOOK_SCHEME_WHITELIST: http
+      PACT_BROKER_WEBHOOK_HOST_WHITELIST: host.docker.internal
+```
+
+Recreate or Start the Pact Broker if its not already running
+
+1. `docker compose up -d`
+
+Start the fake broker webhook service
+
+1. `npm install` - we need to install the dependencies for a fake broker-webhook service.
+1. `npm run start --prefix broker-webhook`
+
+```console
+
+> broker-webhook@1.0.0 start
+> node server.js
+
+## CI Simulator ## Broker webhook is listening on port 9090...
+```
+
+Publish a webhook to our Pact broker
+
+1. `npm run create-webhook --prefix broker-webhook`
 
 ```sh
-export PACT_BROKER_BASE_URL=https://<your_broker_name>.pactflow.io
-export PACT_BROKER_TOKEN=exampleToken
+curl http://host.docker.internal:8000/webhooks \
+    -X POST --user pact_workshop:pact_workshop \
+    -H "Content-Type: application/json" -d @broker-create-body.json -v
 ```
 
-### Update your scripts to use the pact broker token based authentication method
+This will send the following payload.
 
-First, in the consumer project we need to tell Pact about our broker.
-
-In `consumer/publish.pact.js`:
-
-```javascript
-const pact = require('@pact-foundation/pact-node');
-
-if (!process.env.CI && !process.env.PUBLISH_PACT) {
-    console.log("skipping Pact publish...");
-    process.exit(0)
+```json
+{
+"events": [
+  {
+    "name": "contract_content_changed"
+  }
+],
+"request": {
+  "method": "POST",
+  "url": "http://host.docker.internal:9090",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": {
+    "state": "${pactbroker.githubVerificationStatus}",
+    "description": "Pact Verification Tests ${pactbroker.providerVersionTags}",
+    "context": "${pactbroker.providerName}",
+    "target_url": "${pactbroker.verificationResultUrl}"
+  }
 }
-
-const pactBrokerUrl = process.env.PACT_BROKER_BASE_URL || 'https://<your_broker_name>.pactflow.io';
-const pactBrokerToken = process.env.PACT_BROKER_TOKEN || 'pact_workshop';
-
-const gitHash = require('child_process')
-    .execSync('git rev-parse --short HEAD')
-    .toString().trim();
-
-const opts = {
-    pactFilesOrDirs: ['./pacts/'],
-    pactBroker: pactBrokerUrl,
-    pactBrokerToken: pactBrokerToken,
-    tags: ['prod', 'test'],
-    consumerVersion: gitHash
-};
-
-pact
-    .publishPacts(opts)
-    .then(() => {
-        console.log('Pact contract publishing complete!');
-        console.log('');
-        console.log(`Head over to ${pactBrokerUrl}`);
-        console.log('to see your published contracts.')
-    })
-    .catch(e => {
-        console.log('Pact contract publishing failed: ', e)
-    });
+}
 ```
-
-Now run
 
 ```console
-❯ npm run test:pact --prefix consumer
+> broker-webhook@1.0.0 create-webhook
+> ./create_webhook.sh
 
-> consumer@0.1.0 test:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/consumer
-> react-scripts test --testTimeout 30000 pact.spec.js
-
-PASS src/api.pact.spec.js
-  API Pact test
-    getting all products
-      ✓ products exists (19ms)
-      ✓ no products exists (10ms)
-      ✓ no auth token (10ms)
-    getting one product
-      ✓ ID 10 exists (10ms)
-      ✓ product does not exist (8ms)
-      ✓ no auth token (12ms)
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 127.0.0.1:8000...
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+* Server auth using Basic with user 'pact_workshop'
+> POST /webhooks HTTP/1.1
+> Host: localhost:8000
+> Authorization: Basic cGFjdF93b3Jrc2hvcDpwYWN0X3dvcmtzaG9w
+> User-Agent: curl/8.1.2
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 511
+> 
+< HTTP/1.1 201 Created
+< Vary: Accept
+< Content-Type: application/hal+json;charset=utf-8
+< Location: http://localhost:8000/webhooks/QxdSU5uCDllJTLDS_iLbNg
+< Date: Fri, 29 Sep 2023 14:28:43 GMT
+< Server: Webmachine-Ruby/2.0.0 Rack/1.3
+< X-Pact-Broker-Version: 2.107.1
+< X-Content-Type-Options: nosniff
+< Content-Length: 926
+< 
+* Connection #0 to host localhost left intact
+{"uuid":"QxdSU5uCDllJTLDS_iLbNg","description":"POST host.docker.internal","enabled":true,"request":{"method":"POST","url":"http://host.docker.internal:9090","headers":{"Content-Type":"application/json"},"body":{"state":"${pactbroker.githubVerificationStatus}","description":"Pact Verification Tests ${pactbroker.providerVersionTags}","context":"${pactbroker.providerName}","target_url":"${pactbroker.verificationResultUrl}"}},"events":[{"name":"contract_content_changed"}],"createdAt":"2023-09-29T14:28:43+00:00","_links":{"self":{"title":"POST host.docker.internal","href":"http://localhost:8000/webhooks/QxdSU5uCDllJTLDS_iLbNg"},"pb:execute":{"title":"Test the execution of the webhook with the latest matching pact or verification by sending a POST request to this URL","href":"http://localhost:8000/webhooks/QxdSU5uCDllJTLDS_iLbNg/execute"},"pb:webhooks":{"title":"All webhooks","href":"http://localhost:8000/webhooks"}}}% 
 ```
 
-Then publish your pacts:
+Run the consumer pact tests
 
-```
-❯ npm run pact:publish --prefix consumer
+1. `npm run test:pact --prefix consumer`
 
-> pact-broker publish ./pacts --consumer-app-version="$(npx @pact-foundation/absolute-version)" --auto-detect-version-properties
+Publish the consumer pact tests
 
-Updated FrontendWebsite version 71c1b7-step12+71c1b7.SNAPSHOT.SB-AS-G7GM9F7 with branch step12
-Pact successfully published for FrontendWebsite version 71c1b7-step12+71c1b7.SNAPSHOT.SB-AS-G7GM9F7 and provider ProductService.
-  View the published pact at https://testdemo.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/version/71c1b7-step12%2B71c1b7.SNAPSHOT.SB-AS-G7GM9F7
-  Events detected: contract_published, contract_requiring_verification_published, contract_content_changed (first time untagged pact published)
-  Webhook "Automatically trigger pact verification on contract change." triggered for event contract_requiring_verification_published.
-    View logs at https://testdemo.pactflow.io/triggered-webhooks/fa8d571e-8b61-41f8-9955-79a6fa9481fd/logs
-```
-
-Have a browse around your pactflow broker and see your newly published contract
-
-### Verify contracts on Provider
-
-All we need to do for the provider is update where it finds its pacts, from local broker, to one from a hosted pactflow broker
-
-In `provider/product/product.pact.test.js`:
-
-```javascript
-//replace
-pactBrokerUrl: process.env.PACT_BROKER_BASE_URL || "http://localhost:8000",
-pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
-pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
-
-// with
-pactBrokerUrl :process.env.PACT_BROKER_BASE_URL || 'https://<your_broker_name>.pactflow.io',
-pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
-```
-
-
-Let's run the provider verification one last time after this change:
+1. `npm run pact:publish --prefix consumer`
 
 ```console
-❯ npm run test:pact --prefix provider
+> consumer@0.1.0 pact:publish
+> pact-broker publish ./pacts --consumer-app-version="1.0.1" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop
 
-> product-service@1.0.0 test:pact /Users/you54f/dev/saf/dev/pact-workshop-clone/provider
-> npx jest --testTimeout 30000 --testMatch "**/*.pact.test.js"
-
-INFO: pact@9.11.1/84537 on safmac.local: Verifying provider
-INFO: pact-node@10.10.1/84537 on safmac.local: Verifying Pacts.
-INFO: pact-node@10.10.1/84537 on safmac.local: Verifying Pact Files
- PASS  product/product.pact.test.js (6.786s)
-  Pact Verification
-    ✓ validates the expectations of ProductService (6006ms)
-    INFO: Verification results published to https://you54f.pactflow.io/pacts/provider/ProductService/consumer/FrontendWebsite/pact-version/c4b62aae734255d00eba62ced76594343a148e29/verification-results/256
-
+Created FrontendWebsite version 1.0.1 with branch all_steps
+Pact successfully published for FrontendWebsite version 1.0.1 and provider ProductService.
+  View the published pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/1.0.1
+  Events detected: contract_published, contract_content_changed (first time untagged pact published)
+  Webhook QxdSU5uCDllJTLDS_iLbNg triggered for event contract_content_changed.
+    View logs at http://127.0.0.1:8000/triggered-webhooks/f8299b7a-53c4-4f5f-b4a8-7f87dbee1bdf/logs
+  Next steps:
+    * Add Pact verification tests to the ProductService build. See https://docs.pact.io/go/provider_verification
 ```
 
-### Can I deploy?
-
-As per step 11, we can use the `can-i-deploy` command to gate releases.
-
-You can run the `pact-broker can-i-deploy` checks as follows:
+This will trigger the provider tests.
 
 ```console
-❯ pact-broker can-i-deploy \
-               --pacticipant FrontendWebsite \
-               --latest
-
-Computer says yes \o/
-
-CONSUMER        | C.VERSION | PROVIDER       | P.VERSION | SUCCESS?
-----------------|-----------|----------------|-----------|---------
-FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
-
-All required verification results are published and successful
-
-----------------------------
-
-❯ pact-broker can-i-deploy \
-                --pacticipant ProductService \
-                --latest
-
-Computer says yes \o/
-
-CONSUMER        | C.VERSION | PROVIDER       | P.VERSION | SUCCESS?
-----------------|-----------|----------------|-----------|---------
-FrontendWebsite | fe0b6a3   | ProductService | 1.0.0     | true
-
-All required verification results are published and successful
+## CI Simulator ## Broker webhook is listening on port 9090...
+Got webhook {"state":"pending","description":"Pact Verification Tests ","context":"ProductService","target_url":""} 
+ Triggering provider tests...
+provider-verification: 
+> product-service@1.0.0 test:pact
+> jest --testTimeout 30000 --testMatch "**/*.pact.test.js"
 ```
 
-_NOTE_: Because we have exported the `PACT_*` environment variables, we can omit the necessary flags on the command.
+Try publishing the contract again. You'll note the broker webhook does not trigger a 2nd time as the content has not changed.
 
-That's it - you're now a Pact pro. Go build 🔨
+```console
+> consumer@0.1.0 pact:publish
+> pact-broker publish ./pacts --consumer-app-version="1.0.1" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop
+
+Updated FrontendWebsite version 1.0.1 with branch step12
+Pact successfully republished for FrontendWebsite version 1.0.1 and provider ProductService with no content changes.
+  View the published pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/1.0.1
+  Events detected: contract_published
+  No enabled webhooks found for the detected events
+
+```
+
+Try updating the version of the contract, in `consumer/package.json`
+
+```json
+    "pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"1.0.2\" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop",
+```
+
+You'll again note, that as the contract version has changed, but the contents have not changed, since the last verification, the Pact Broker is aware of this, pre-verifying the Pact without needing to trigger the provider build.
+
+```
+> consumer@0.1.0 pact:publish
+> pact-broker publish ./pacts --consumer-app-version="1.0.2" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop
+
+Created FrontendWebsite version 1.0.2 with branch step12
+Pact successfully published for FrontendWebsite version 1.0.2 and provider ProductService.
+  View the published pact at http://127.0.0.1:8000/pacts/provider/ProductService/consumer/FrontendWebsite/version/1.0.2
+  Events detected: contract_published (pact content is the same as previous versions with tags  and no new tags were applied)
+  No enabled webhooks found for the detected events
+```
+
+If you update the Pact contracts and attempt to republish under an existing version number, you will be stopped by the Pact Broker.
+
+This ensures contracts remain consistent once published.
+
+```console
+> consumer@0.1.0 pact:publish
+> pact-broker publish ./pacts --consumer-app-version="1.0.2" --auto-detect-version-properties --broker-base-url=http://127.0.0.1:8000 --broker-username pact_workshop --broker-password pact_workshop
+
+Cannot change the content of the pact for ProductService version 1.0.2 and provider ProductService, as race conditions will cause unreliable results for can-i-deploy. Each pact must be published with a unique consumer version number. Some Pact libraries generate random data when a concrete value for a type matcher is not specified, and this can cause the contract to mutate - ensure you have given example values for all type matchers. For more information see https://docs.pact.io/go/versioning
+     ... ,
+     {
+       "request": {
+-        "path": "/product/10"
++        "path": "/product/11"
+       }
+     },
+     ... ,
+```
+
+*Optional - Move on to [step 13](https://github.com/pact-foundation/pact-workshop-js/tree/step13#step-13---using-a-pactflow-broker)* for integrating with a PactFlow Broker

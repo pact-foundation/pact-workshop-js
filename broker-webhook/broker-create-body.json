@@ -1,0 +1,20 @@
+{
+    "events": [
+      {
+        "name": "contract_content_changed"
+      }
+    ],
+    "request": {
+      "method": "POST",
+      "url": "http://host.docker.internal:9090",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "state": "${pactbroker.githubVerificationStatus}",
+        "description": "Pact Verification Tests ${pactbroker.providerVersionTags}",
+        "context": "${pactbroker.providerName}",
+        "target_url": "${pactbroker.verificationResultUrl}"
+      }
+    }
+  }
