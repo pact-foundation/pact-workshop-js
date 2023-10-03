@@ -1,4 +1,4 @@
-const { Verifier } = require("@pact-foundation/pact");
+const { Verifier } = require('@pact-foundation/pact');
 const controller = require('./product.controller');
 const Product = require('./product');
 
@@ -13,12 +13,16 @@ describe("Pact Verification", () => {
     it("validates the expectations of ProductService", () => {
         const opts = {
             logLevel: "INFO",
-            providerBaseUrl: "http://localhost:8080",
+            providerBaseUrl: "http://127.0.0.1:8080",
             provider: "ProductService",
             providerVersion: "1.0.0",
-            providerVersionTags: ["test"],
-            pactBrokerUrl :process.env.PACT_BROKER_BASE_URL || 'https://<your_broker_name>.pactflow.io',
-            pactBrokerToken: process.env.PACT_BROKER_TOKEN || 'pact_workshop',
+            providerVersionBranch: "test",
+            consumerVersionSelectors: [{
+                latest: true
+              }],
+            pactBrokerUrl: process.env.PACT_BROKER_URL || "http://127.0.0.1:8000",
+            pactBrokerUsername: process.env.PACT_BROKER_USERNAME || "pact_workshop",
+            pactBrokerPassword: process.env.PACT_BROKER_PASSWORD || "pact_workshop",
             stateHandlers: {
                 "product with ID 10 exists": () => {
                     controller.repository.products = new Map([
@@ -46,10 +50,9 @@ describe("Pact Verification", () => {
                 req.headers["authorization"] = `Bearer ${new Date().toISOString()}`;
                 next();
             },
-            publishVerificationResult: process.env.CI || process.env.PACT_BROKER_PUBLISH_VERIFICATION_RESULTS
         };
 
-        if (process.env.CI) {
+        if (process.env.CI || process.env.PACT_PUBLISH_RESULTS) {
             Object.assign(opts, {
                 publishVerificationResult: true,
             });
