@@ -24,7 +24,15 @@ This workshop should take from 1 to 2 hours, depending on how deep you want to g
 - [step 12: **broker webhooks**](https://github.com/pact-foundation/pact-workshop-js/tree/step12#step-12---using-webhooks): Trigger provider workflows when contracts change, via webhooks
 - [step 13: **pactflow broker**](https://github.com/pact-foundation/pact-workshop-js/tree/step13#step-13---using-a-pactflow-broker): Implement a managed pactflow workflow for integration with CI/CD
 
-_NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally. For example, to move to step 2 run the following: `git checkout step2`_
+_NOTE: Each step is tied to, and must be run within, a git branch, allowing you to progress through each stage incrementally._
+
+_EG: Move to step 2:_
+
+_`git checkout step2`_
+
+_`npm install`_
+
+<hr/>
 
 ## Learning objectives
 
