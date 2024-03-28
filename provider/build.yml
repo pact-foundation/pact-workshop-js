@@ -1,0 +1,48 @@
+name: Build
+
+#  This workflow is the Provider's CI build that will run on every commit for the provider codebase
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  PACT_BROKER_BASE_URL: https://copsteam.pactflow.io
+  PACT_BROKER_TOKEN: ${{ secrets.PACTFLOW_TOKEN_FOR_CI_CD_WORKSHOP }}
+  PACT_BROKER_PUBLISH_VERIFICATION_RESULTS: true
+  GIT_COMMIT: ${{ github.sha }}
+  GITHUB_REF: ${{ github.ref }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install
+        run: npm i
+      - name: Test
+        run: GIT_BRANCH=${GITHUB_REF:11} make test
+
+  # Runs on branches as well, so we know the status of our PRs
+  can-i-deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker pull pactfoundation/pact-cli:latest
+      - name: Can I deploy?
+        run: GIT_BRANCH=${GITHUB_REF:11} make can_i_deploy
+
+  # Only deploy from master
+  deploy:
+    runs-on: ubuntu-latest
+    needs: can-i-deploy
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker pull pactfoundation/pact-cli:latest
+      - name: Deploy
+        run: GIT_BRANCH=${GITHUB_REF:11} make deploy
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test'

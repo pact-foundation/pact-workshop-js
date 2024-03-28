@@ -1,0 +1,30 @@
+name: Trigger update to partners.pactflow.io
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**.md'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'pactflow/example-consumer' }}
+    steps:
+      - name: Trigger docs.pactflow.io update workflow
+        run: |
+          curl -X POST https://api.github.com/repos/pactflow/docs.pactflow.io/dispatches \
+                -H 'Accept: application/vnd.github.everest-preview+json' \
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -d '{"event_type": "pactflow-example-consumer-js-updated"}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GHTOKENFORTRIGGERINGPACTDOCSUPDATE }}
+      - name: Trigger partners.pact.io update workflow
+        run: |
+          curl -X POST https://api.github.com/repos/pactflow/partners.pactflow.io/dispatches \
+                -H 'Accept: application/vnd.github.everest-preview+json' \
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -d '{"event_type": "pactflow-example-consumer-js-updated"}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GHTOKENFORTRIGGERINGPACTDOCSUPDATE }}

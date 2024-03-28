@@ -1,0 +1,14 @@
+{
+    "request": {
+        "message": "Triggered by changed pact for ${pactbroker.consumerName} version ${pactbroker.consumerVersionNumber}",
+        "branch": "master",
+        "merge_mode": "deep_merge_append",
+        "config": {
+            "env": {
+                "global": [
+                    "PACT_URL=${pactbroker.pactUrl}"
+                ]
+            }
+        }
+    }
+}
