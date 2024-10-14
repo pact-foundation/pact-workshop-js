@@ -6,7 +6,7 @@ const routes = require("./routes");
 const port = 9090;
 
 app.use(cors());
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
 
 app.listen(port, () =>

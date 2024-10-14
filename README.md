@@ -1162,12 +1162,12 @@ Using a broker simplifies the management of pacts and adds a number of useful fe
 
 In this workshop we will be using the open source Pact broker.
 
-### Running the Pact Broker with docker-compose
+### Running the Pact Broker with docker compose
 
 In the root directory, run:
 
 ```console
-docker-compose up
+docker compose up
 ```
 
 ### Publish contracts from consumer
@@ -1354,7 +1354,7 @@ When a consumer contract is published, we want to trigger a provider build, in o
 
 We can simulate this locally and explore the techniques involved.
 
-Update your docker-compose file to support webhooks running from your local machine
+Update your docker compose file to support webhooks running from your local machine
 
 1. in `docker-compose.yaml`
 
