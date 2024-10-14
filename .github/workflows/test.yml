@@ -1,5 +1,8 @@
 name: Build
 
+env:
+  PACT_BROKER_WEBHOOK_HOST_WHITELIST: localhost
+
 on:
   push:
   workflow_dispatch:
@@ -14,8 +17,11 @@ jobs:
           node-version: '20'
       - run: docker compose up -d
       - run: npm i
-      - run: npm run start --prefix broker-webhook & 
+      - run: nohup npm run start --prefix broker-webhook > out.log 2>&1 &
       - run: npm run create-webhook --prefix broker-webhook
       - run: npm test --prefix consumer
-      - run: npm run pact:publish --prefix consumer
-      - run: sleep 30
+      - run: |
+          npm run pact:publish --prefix consumer > publish.out
+          curl "$(cat publish.out | grep "View logs at" | sed -E 's/.*View logs at \x1b\[35m(.*)\x1b\[0m/\1/')" --user pact_workshop:pact_workshop -H "Accept: */*"
+      - run: sleep 15
+      - run: cat out.log
