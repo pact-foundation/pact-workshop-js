@@ -22,6 +22,7 @@ jobs:
       - run: npm test --prefix consumer
       - run: |
           npm run pact:publish --prefix consumer > publish.out
+          sleep 15
           curl "$(cat publish.out | grep "View logs at" | sed -E 's/.*View logs at \x1b\[35m(.*)\x1b\[0m/\1/')" --user pact_workshop:pact_workshop -H "Accept: */*"
       - run: sleep 15
       - run: cat out.log
