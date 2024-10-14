@@ -1,5 +1,8 @@
 import API from "./api";
 import nock from "nock";
+import axios from 'axios'
+
+axios.defaults.adapter = 'http' // https://github.com/nock/nock?tab=readme-ov-file#axios
 
 describe("API", () => {
 
