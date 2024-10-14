@@ -1,5 +1,8 @@
 import API from "./api";
 import nock from "nock";
+import axios from 'axios';
+
+axios.defaults.adapter = 'http';
 
 describe("API", () => {
 
