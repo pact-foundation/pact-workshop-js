@@ -1,7 +1,7 @@
 name: Build
 
-env:
-  PACT_BROKER_WEBHOOK_HOST_WHITELIST: localhost
+# env:
+  # PACT_BROKER_WEBHOOK_HOST_WHITELIST: localhost
 
 on:
   push:
