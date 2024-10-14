@@ -399,7 +399,7 @@ _`npm install`_
 
 <hr/>
 
-We need to make the pact file (the contract) that was produced from the consumer test available to the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract. For now, we'll hard code the path to where it is saved in the consumer test, in step 11 we investigate a better way of doing this.
+We need to make the pact file (the contract) that was produced from the consumer test available to the Provider module. This will help us verify that the provider can meet the requirements as set out in the contract. For now, we'll hard code the path to where it is saved in the consumer test (as part of the [bronze step of Pact Nirvana](https://docs.pact.io/pact_nirvana/step_3#manually-run-the-provider-verification-test)), in step 11 we investigate a better way of doing this by dynamically fetching pacts from the broker.
 
 Now let's make a start on writing Pact tests to validate the consumer contract:
 
