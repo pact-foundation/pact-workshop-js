@@ -15,4 +15,5 @@ jobs:
       - run: docker compose up -d
       - run: npm i
       - run: npm test --prefix consumer
+      - run: npm run pact:publish --prefix consumer
       - run: npm test --prefix provider
