@@ -1162,12 +1162,12 @@ Using a broker simplifies the management of pacts and adds a number of useful fe
 
 In this workshop we will be using the open source Pact broker.
 
-### Running the Pact Broker with docker-compose
+### Running the Pact Broker with docker compose
 
 In the root directory, run:
 
 ```console
-docker-compose up
+docker compose up
 ```
 
 ### Publish contracts from consumer
@@ -1354,7 +1354,7 @@ When a consumer contract is published, we want to trigger a provider build, in o
 
 We can simulate this locally and explore the techniques involved.
 
-Update your docker-compose file to support webhooks running from your local machine
+Update your docker compose file to support webhooks running from your local machine
 
 1. in `docker-compose.yaml`
 
@@ -1560,49 +1560,7 @@ export PACT_BROKER_BASE_URL=https://<your_broker_name>.pactflow.io
 export PACT_BROKER_TOKEN=exampleToken
 ```
 
-### Update your scripts to use the pact broker token based authentication method
-
-First, in the consumer project we need to tell Pact about our broker.
-
-In `consumer/publish.pact.js`:
-
-```javascript
-const pact = require('@pact-foundation/pact-node');
-
-if (!process.env.CI && !process.env.PUBLISH_PACT) {
-    console.log("skipping Pact publish...");
-    process.exit(0)
-}
-
-const pactBrokerUrl = process.env.PACT_BROKER_BASE_URL || 'https://<your_broker_name>.pactflow.io';
-const pactBrokerToken = process.env.PACT_BROKER_TOKEN || 'pact_workshop';
-
-const gitHash = require('child_process')
-    .execSync('git rev-parse --short HEAD')
-    .toString().trim();
-
-const opts = {
-    pactFilesOrDirs: ['./pacts/'],
-    pactBroker: pactBrokerUrl,
-    pactBrokerToken: pactBrokerToken,
-    tags: ['prod', 'test'],
-    consumerVersion: gitHash
-};
-
-pact
-    .publishPacts(opts)
-    .then(() => {
-        console.log('Pact contract publishing complete!');
-        console.log('');
-        console.log(`Head over to ${pactBrokerUrl}`);
-        console.log('to see your published contracts.')
-    })
-    .catch(e => {
-        console.log('Pact contract publishing failed: ', e)
-    });
-```
-
-Now run
+### Publish your pacts to the PactFlow pact broker using token based authentication method
 
 ```console
 ❯ npm run test:pact --prefix consumer
