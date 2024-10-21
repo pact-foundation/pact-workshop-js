@@ -24,11 +24,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios)/\"",
+    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "pretest:pact": "rimraf pacts/*.json",
-    "test:pact": "cross-env CI=true react-scripts test --testTimeout=30000 pact.spec.js --transformIgnorePatterns \"node_modules/(?!axios)/\"",
-    "test:unit": "cross-env CI=true react-scripts test api.spec.js --transformIgnorePatterns \"node_modules/(?!axios)/\""
+    "test:pact": "cross-env CI=true react-scripts test --testTimeout=30000 pact.spec.js",
+    "test:unit": "cross-env CI=true react-scripts test api.spec.js"
   },
   "eslintConfig": {
     "extends": [
@@ -46,6 +46,11 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(axios)/)"
     ]
   }
 }
