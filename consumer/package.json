@@ -10,25 +10,25 @@
     "react-router-dom": "6.27.0",
     "react-scripts": "5.0.1",
     "spectre.css": "0.5.9",
-    "web-vitals": "3.5.2"
+    "web-vitals": "4.2.3"
   },
   "devDependencies": {
-    "@pact-foundation/pact": "12.5.2",
-    "@testing-library/react": "14.3.1",
+    "@pact-foundation/pact": "13.1.4",
+    "@testing-library/react": "16.0.1",
     "@testing-library/user-event": "14.5.2",
     "nock": "13.5.5",
-    "rimraf": "5.0.10",
+    "rimraf": "6.0.1",
     "cross-env": "7.0.3",
     "@babel/plugin-proposal-private-property-in-object": "7.21.11"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios)/\"",
+    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "pretest:pact": "rimraf pacts/*.json",
-    "test:pact": "cross-env CI=true react-scripts test --testTimeout=30000 pact.spec.js --transformIgnorePatterns \"node_modules/(?!axios)/\"",
-    "test:unit": "cross-env CI=true react-scripts test api.spec.js --transformIgnorePatterns \"node_modules/(?!axios)/\""
+    "test:pact": "cross-env CI=true react-scripts test --testTimeout=30000 pact.spec.js",
+    "test:unit": "cross-env CI=true react-scripts test api.spec.js"
   },
   "eslintConfig": {
     "extends": [
@@ -46,6 +46,11 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(axios)/)"
     ]
   }
 }
