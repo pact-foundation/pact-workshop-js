@@ -1,10 +1,9 @@
 import axios from 'axios';
-axios.defaults.adapter = "http"
 export class API {
 
     constructor(url) {
         if (url === undefined || url === "") {
-            url = process.env.REACT_APP_API_BASE_URL;
+            url = import.meta.env.VITE_APP_API_BASE_URL;
         }
         if (url.endsWith("/")) {
             url = url.substr(0, url.length - 1)
@@ -42,4 +41,4 @@ export class API {
     }
 }
 
-export default new API(process.env.REACT_APP_API_BASE_URL);
+export default new API(import.meta.env.VITE_APP_API_BASE_URL);
