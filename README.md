@@ -68,14 +68,14 @@ The diagram below highlights the interaction for retrieving a product with ID 10
 
 ![Sequence Diagram](diagrams/workshop_step1_class-sequence-diagram.svg)
 
-You can see the client interface we created in `consumer/src/api.js`:
+You can see the client interface we created in `consumer/src/api.jsx`:
 
 ```javascript
 export class API {
 
     constructor(url) {
         if (url === undefined || url === "") {
-            url = process.env.REACT_APP_API_BASE_URL;
+            url = import.meta.env.VITE_APP_API_BASE_URL;
         }
         if (url.endsWith("/")) {
             url = url.substr(0, url.length - 1)
@@ -264,96 +264,77 @@ Note how similar it looks to our unit test:
 In `consumer/src/api.pact.spec.js`:
 
 ```javascript
-import path from "path";
-import { PactV3, MatchersV3, SpecificationVersion, } from "@pact-foundation/pact";
+import {
+  Pact,
+  Matchers,
+} from "@pact-foundation/pact";
 import { API } from "./api";
-const { eachLike, like } = MatchersV3;
 
-const provider = new PactV3({
+const { eachLike, like } = Matchers;
+
+const provider = new Pact({
   consumer: "FrontendWebsite",
   provider: "ProductService",
-  log: path.resolve(process.cwd(), "logs", "pact.log"),
   logLevel: "warn",
-  dir: path.resolve(process.cwd(), "pacts"),
-  spec: SpecificationVersion.SPECIFICATION_VERSION_V2,
-  host: "127.0.0.1"
 });
 
 describe("API Pact test", () => {
   describe("getting all products", () => {
     test("products exists", async () => {
-      // set up Pact interactions
-      await provider.addInteraction({
-        states: [{ description: "products exist" }],
-        uponReceiving: "get all products",
-        withRequest: {
-          method: "GET",
-          path: "/products",
-        },
-        willRespondWith: {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-          body: eachLike({
+      await provider
+        .addInteraction()
+        .given("products exist")
+        .uponReceiving("get all products")
+        .withRequest("GET", "/products")
+        .willRespondWith(200, (builder) => {
+          builder.headers({ "Content-Type": "application/json; charset=utf-8" });
+          builder.jsonBody(eachLike({
             id: "09",
             type: "CREDIT_CARD",
             name: "Gem Visa",
-          }),
-        },
-      });
-
-      await provider.executeTest(async (mockService) => {
-        const api = new API(mockService.url);
-
-        // make request to Pact mock server
-        const product = await api.getAllProducts();
-
-        expect(product).toStrictEqual([
-          { id: "09", name: "Gem Visa", type: "CREDIT_CARD" },
-        ]);
-      });
+          }));
+        })
+        .executeTest(async (mockService) => {
+          const api = new API(mockService.url);
+          const product = await api.getAllProducts();
+          expect(product).toStrictEqual([
+            { id: "09", name: "Gem Visa", type: "CREDIT_CARD" },
+          ]);
+        });
     });
+
+
   });
 
   describe("getting one product", () => {
     test("ID 10 exists", async () => {
-      // set up Pact interactions
-      await provider.addInteraction({
-        states: [{ description: "product with ID 10 exists" }],
-        uponReceiving: "get product with ID 10",
-        withRequest: {
-          method: "GET",
-          path: "/products/10",
-        },
-        willRespondWith: {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-          body: like({
+      await provider
+        .addInteraction()
+        .given("product with ID 10 exists")
+        .uponReceiving("get product with ID 10")
+        .withRequest("GET", "/products/10")
+        .willRespondWith(200, (builder) => {
+          builder.headers({ "Content-Type": "application/json; charset=utf-8" });
+          builder.jsonBody(like({
             id: "10",
             type: "CREDIT_CARD",
             name: "28 Degrees",
-          }),
-        },
-      });
-
-      await provider.executeTest(async (mockService) => {
-        const api = new API(mockService.url);
-
-        // make request to Pact mock server
-        const product = await api.getProduct("10");
-
-        expect(product).toStrictEqual({
-          id: "10",
-          type: "CREDIT_CARD",
-          name: "28 Degrees",
+          }));
+        })
+        .executeTest(async (mockService) => {
+          const api = new API(mockService.url);
+          const product = await api.getProduct("10");
+          expect(product).toStrictEqual({
+            id: "10",
+            type: "CREDIT_CARD",
+            name: "28 Degrees",
+          });
         });
-      });
     });
+
   });
 });
+
 ```
 
 
@@ -365,7 +346,7 @@ To simplify running the tests, add this to `consumer/package.json`:
 
 ```javascript
 // add it under scripts
-"test:pact": "cross-env CI=true react-scripts test --testTimeout 30000 pact.spec.js",
+"test:pact": "cross-env CI=true jest --testTimeout 30000 pact.spec.js",
 ```
 
 Running this test still passes, but it creates a pact file which we can use to validate our assumptions on the provider side, and have conversation around.
@@ -497,7 +478,7 @@ We now need to update the consumer client and tests to hit the correct product p
 
 First, we need to update the GET route for the client:
 
-In `consumer/src/api.js`:
+In `consumer/src/api.jsx`:
 
 ```javascript
 async getProduct(id) {
@@ -511,17 +492,33 @@ Then we need to update the Pact test `ID 10 exists` to use the correct endpoint 
 In `consumer/src/api.pact.spec.js`:
 
 ```javascript
-describe("getting one product", () => {
-  test("ID 10 exists", async () => {
+  describe("getting one product", () => {
+    test("ID 10 exists", async () => {
+      await provider
+        .addInteraction()
+        .given("product with ID 10 exists")
+        .uponReceiving("get product with ID 10")
+        .withRequest("GET", "/product/10") // update the endpoint to match the provider
+        .willRespondWith(200, (builder) => {
+          builder.headers({ "Content-Type": "application/json; charset=utf-8" });
+          builder.jsonBody(like({
+            id: "10",
+            type: "CREDIT_CARD",
+            name: "28 Degrees",
+          }));
+        })
+        .executeTest(async (mockService) => {
+          const api = new API(mockService.url);
+          const product = await api.getProduct("10");
+          expect(product).toStrictEqual({
+            id: "10",
+            type: "CREDIT_CARD",
+            name: "28 Degrees",
+          });
+        });
+    });
 
-    // set up Pact interactions
-    await provider.addInteraction({
-      state: 'product with ID 10 exists',
-      uponReceiving: 'get product with ID 10',
-      withRequest: {
-        method: 'GET',
-        path: '/product/10'
-      },
+  });
 
 ...
 ```
@@ -599,58 +596,38 @@ In `consumer/src/api.pact.spec.js`:
 
 ```javascript
 // within the 'getting all products' group
-test("no products exists", async () => {
-
-  // set up Pact interactions
-  await provider.addInteraction({
-    state: 'no products exist',
-    uponReceiving: 'get all products',
-    withRequest: {
-      method: 'GET',
-      path: '/products'
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8'
-      },
-      body: []
-    },
-  });
-
-  const api = new API(provider.mockService.baseUrl);
-
-  // make request to Pact mock server
-  const product = await api.getAllProducts();
-
-  expect(product).toStrictEqual([]);
-});
+    test("no products exists", async () => {
+      await provider
+        .addInteraction()
+        .given("no products exist")
+        .uponReceiving("get all products")
+        .withRequest("GET", "/products")
+        .willRespondWith(200, (builder) => {
+          builder.headers({ "Content-Type": "application/json; charset=utf-8" });
+          builder.jsonBody([]);
+        })
+        .executeTest(async (mockService) => {
+          const api = new API(mockService.url);
+          const product = await api.getAllProducts();
+          expect(product).toStrictEqual([]);
+        });
+    });
 
 // within the 'getting one product' group
-test("product does not exist", async () => {
-
-  // set up Pact interactions
-  await provider.addInteraction({
-    state: 'product with ID 11 does not exist',
-    uponReceiving: 'get product with ID 11',
-    withRequest: {
-      method: 'GET',
-      path: '/product/11'
-    },
-    willRespondWith: {
-      status: 404
-    },
-  });
-
-  await provider.executeTest(async (mockService) => {
-    const api = new API(mockService.url);
-
-    // make request to Pact mock server
-    await expect(api.getProduct("11")).rejects.toThrow(
-    "Request failed with status code 404"
-    );
-  });
-});
+    test("product does not exist", async () => {
+      await provider
+        .addInteraction()
+        .given("product with ID 11 does not exist")
+        .uponReceiving("get product with ID 11")
+        .withRequest("GET", "/product/11")
+        .willRespondWith(404)
+        .executeTest(async (mockService) => {
+          const api = new API(mockService.url);
+          await expect(api.getProduct("11")).rejects.toThrow(
+            "Request failed with status code 404"
+          );
+        });
+    });
 ```
 
 Notice that our new tests look almost identical to our previous tests, and only differ on the expectations of the _response_ - the HTTP request expectations are exactly the same.
@@ -825,7 +802,7 @@ It turns out that not everyone should be able to use the API. After a discussion
 
 In the case a valid bearer token is not provided, we expect a `401`. Let's update the consumer to pass the bearer token, and capture this new `401` scenario.
 
-In `consumer/src/api.js`:
+In `consumer/src/api.jsx`:
 
 ```javascript
     generateAuthToken() {
@@ -854,53 +831,59 @@ In `consumer/src/api.js`:
 In `consumer/src/api.pact.spec.js` we add authentication headers to the request setup for the existing tests:
 
 ```js
-      await provider.addInteraction({
-        states: [{ description: "no products exist" }],
-        uponReceiving: "get all products",
-        withRequest: {
-          method: "GET",
-          path: "/products",
-          headers: {
-            Authorization: like("Bearer 2019-01-14T11:34:18.045Z"),
-          },
-        },
-        willRespondWith: {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-          body: [],
-        },
-      });
+    test("no products exists", async () => {
+      await provider
+        .addInteraction()
+        .given("no products exist")
+        .uponReceiving("get all products")
+        .withRequest("GET", "/products", (builder) => {
+          builder.headers({ Authorization: like("Bearer 2019-01-14T11:34:18.045Z") }); // add this authorization header expectation to the request
+        })
+        .willRespondWith(200, (builder) => {
+          builder.headers({ "Content-Type": "application/json; charset=utf-8" });
+          builder.jsonBody([]);
+        })
+        .executeTest(async (mockService) => {
+          const api = new API(mockService.url);
+          const product = await api.getAllProducts();
+          expect(product).toStrictEqual([]);
+        });
+    });
 ```
 
 and we also add two new tests for the "no auth token" use case:
 
 ```js
-    // ...
+    // ... in the 'getting all products' group
     test("no auth token", async () => {
+      await provider
+        .addInteraction()
+        .given("products exist")
+        .uponReceiving("get all products")
+        .withRequest("GET", "/products")
+        .willRespondWith(401)
+        .executeTest(async (mockService) => {
+          const api = new API(mockService.url);
+          await expect(api.getAllProducts()).rejects.toThrow(
+            "Request failed with status code 401"
+          );
+        });
+    });
 
-      // set up Pact interactions
-      await provider.addInteraction({
-        states: [{ description: "product with ID 10 exists" }],
-        uponReceiving: "get product by ID 10 with no auth token",
-        withRequest: {
-          method: "GET",
-          path: "/product/10",
-        },
-        willRespondWith: {
-          status: 401,
-        },
-      });
-
-      await provider.executeTest(async (mockService) => {
-        const api = new API(mockService.url);
-
-        // make request to Pact mock server
-        await expect(api.getProduct("10")).rejects.toThrow(
-          "Request failed with status code 401"
-        );
-      });
+    // ... in the 'getting one product' group
+    test("no auth token", async () => {
+      await provider
+        .addInteraction()
+        .given("product with ID 10 exists")
+        .uponReceiving("get product by ID 10")
+        .withRequest("GET", "/product/10")
+        .willRespondWith(401)
+        .executeTest(async (mockService) => {
+          const api = new API(mockService.url);
+          await expect(api.getProduct("10")).rejects.toThrow(
+            "Request failed with status code 401"
+          );
+        });
     });
 ```
 
@@ -1562,45 +1545,14 @@ export PACT_BROKER_TOKEN=exampleToken
 
 ### Update your scripts to use the pact broker token based authentication method
 
-First, in the consumer project we need to tell Pact about our broker.
+First, in the consumer project we need to tell Pact about our broker authentication mechanism, our environment variables `PACT_BROKER_BASE_URL` & `PACT_BROKER_TOKEN` will automatically be picked up, so we can just remove the username and password flags from our publish script:
 
-In `consumer/publish.pact.js`:
+In `consumer/package.json`:
 
-```javascript
-const pact = require('@pact-foundation/pact-node');
-
-if (!process.env.CI && !process.env.PUBLISH_PACT) {
-    console.log("skipping Pact publish...");
-    process.exit(0)
-}
-
-const pactBrokerUrl = process.env.PACT_BROKER_BASE_URL || 'https://<your_broker_name>.pactflow.io';
-const pactBrokerToken = process.env.PACT_BROKER_TOKEN || 'pact_workshop';
-
-const gitHash = require('child_process')
-    .execSync('git rev-parse --short HEAD')
-    .toString().trim();
-
-const opts = {
-    pactFilesOrDirs: ['./pacts/'],
-    pactBroker: pactBrokerUrl,
-    pactBrokerToken: pactBrokerToken,
-    tags: ['prod', 'test'],
-    consumerVersion: gitHash
-};
-
-pact
-    .publishPacts(opts)
-    .then(() => {
-        console.log('Pact contract publishing complete!');
-        console.log('');
-        console.log(`Head over to ${pactBrokerUrl}`);
-        console.log('to see your published contracts.')
-    })
-    .catch(e => {
-        console.log('Pact contract publishing failed: ', e)
-    });
+```json
+```"pact:publish": "pact-broker publish ./pacts --consumer-app-version=\"1.0.0\" --auto-detect-version-properties"
 ```
+
 
 Now run
 
