@@ -1,5 +1,5 @@
 import axios from 'axios';
-// axios.defaults.adapter = "http"
+axios.defaults.adapter = "http"
 export class API {
 
     constructor(url) {
