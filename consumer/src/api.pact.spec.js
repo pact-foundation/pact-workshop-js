@@ -124,9 +124,7 @@ describe("API Pact test", () => {
         .addInteraction()
         .given("product with ID 10 exists")
         .uponReceiving("get product by ID 10")
-                .withRequest("GET", "/product/10", (builder) => {
-          builder.headers({ Authorization: like("Bearer 2019-01-14T11:34:18.045Z") });
-        })
+        .withRequest("GET", "/product/10")
         .willRespondWith(401)
         .executeTest(async (mockService) => {
           const api = new API(mockService.url);
